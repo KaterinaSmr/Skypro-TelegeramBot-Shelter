@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.service.PersonService;
+import pro.sky.telegrambotshelter.service.PetService;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -17,6 +18,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
     private final PersonService personService;
+    private final PetService petService;
+
     private final TelegramBot telegramBot;
 
     private final String START = "/start";
@@ -25,8 +28,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private final String REPORT = "/report";
     private final String CALLAVOLUNTEER = "/volunteer";
 
-    public TelegramBotUpdatesListener(PersonService personService, TelegramBot telegramBot) {
+    public TelegramBotUpdatesListener(PersonService personService, PetService petService, TelegramBot telegramBot) {
         this.personService = personService;
+        this.petService = petService;
         this.telegramBot = telegramBot;
     }
 

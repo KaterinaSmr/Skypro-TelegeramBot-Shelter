@@ -1,3 +1,6 @@
 databaseChangeLog:
   - include:
       file: liquibase/scripts/person.sql
+
+  - include:
+      file: liquibase/scripts/pet.sql

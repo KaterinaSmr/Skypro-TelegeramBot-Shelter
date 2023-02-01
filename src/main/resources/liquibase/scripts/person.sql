@@ -6,6 +6,10 @@ CREATE TABLE person(
     chat_id   BIGINT,
     first_name  VARCHAR,
     last_name VARCHAR,
-    phone VARCHAR,
-    email VARCHAR
+    phone   VARCHAR,
+    email   VARCHAR
 )
+
+
+
+
