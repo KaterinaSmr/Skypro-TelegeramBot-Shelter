@@ -1,3 +1,3 @@
 databaseChangeLog:
   - include:
-      file: liquibase/scripts/contacts.sql
+      file: liquibase/scripts/person.sql

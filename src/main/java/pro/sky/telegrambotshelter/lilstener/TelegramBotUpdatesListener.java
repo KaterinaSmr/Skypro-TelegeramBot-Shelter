@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.request.SendMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import pro.sky.telegrambotshelter.service.PersonService;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
+    private final PersonService personService;
     private final TelegramBot telegramBot;
 
     private final String START = "/start";
@@ -23,7 +25,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private final String REPORT = "/report";
     private final String CALLAVOLUNTEER = "/volunteer";
 
-    public TelegramBotUpdatesListener(TelegramBot telegramBot) {
+    public TelegramBotUpdatesListener(PersonService personService, TelegramBot telegramBot) {
+        this.personService = personService;
         this.telegramBot = telegramBot;
     }
 
