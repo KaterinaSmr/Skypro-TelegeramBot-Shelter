@@ -7,10 +7,14 @@ import com.pengrad.telegrambot.request.SendMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import pro.sky.telegrambotshelter.model.Adoption;
+import pro.sky.telegrambotshelter.service.AdoptionReportService;
+import pro.sky.telegrambotshelter.service.AdoptionService;
 import pro.sky.telegrambotshelter.service.PersonService;
 import pro.sky.telegrambotshelter.service.PetService;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -19,6 +23,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
     private final PersonService personService;
     private final PetService petService;
+    private final AdoptionService adoptionService;
+    private final AdoptionReportService adoptionReportService;
 
     private final TelegramBot telegramBot;
 
@@ -28,9 +34,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private final String REPORT = "/report";
     private final String CALLAVOLUNTEER = "/volunteer";
 
-    public TelegramBotUpdatesListener(PersonService personService, PetService petService, TelegramBot telegramBot) {
+    public TelegramBotUpdatesListener(PersonService personService, PetService petService, AdoptionService adoptionService, AdoptionReportService adoptionReportService, TelegramBot telegramBot) {
         this.personService = personService;
         this.petService = petService;
+        this.adoptionService = adoptionService;
+        this.adoptionReportService = adoptionReportService;
         this.telegramBot = telegramBot;
     }
 

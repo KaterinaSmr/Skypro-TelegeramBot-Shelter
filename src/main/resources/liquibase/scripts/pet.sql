@@ -8,3 +8,5 @@ CREATE TABLE pet
     kind          VARCHAR,
     year_of_birth INT
 )
+-- changeset egorbacheva:3
+ALTER TABLE pet add primary key (id)

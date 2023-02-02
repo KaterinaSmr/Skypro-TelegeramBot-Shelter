@@ -5,6 +5,7 @@ import pro.sky.telegrambotshelter.model.Person;
 import pro.sky.telegrambotshelter.repository.PersonRepository;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class PersonService {
@@ -24,8 +25,8 @@ public class PersonService {
         personRepository.save(newPerson);
     }
 
-    public Collection<Person> getPersonByChatId(long chatId){
-        return personRepository.findAllByChatId(chatId);
+    public Optional<Person> findPersonByChatId(long chatId){
+        return personRepository.findByChatId(chatId);
     }
 
     public void remove(int personId){

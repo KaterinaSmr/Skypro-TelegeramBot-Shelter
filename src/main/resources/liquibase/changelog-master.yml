@@ -4,3 +4,9 @@ databaseChangeLog:
 
   - include:
       file: liquibase/scripts/pet.sql
+
+  - include:
+      file: liquibase/scripts/adoption.sql
+
+  - include:
+      file: liquibase/scripts/adoption_report.sql

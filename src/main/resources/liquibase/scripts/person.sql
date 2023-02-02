@@ -10,6 +10,9 @@ CREATE TABLE person(
     email   VARCHAR
 )
 
+-- changeset egorbacheva:2
+ALTER TABLE person add primary key (id)
+
 
 
 
