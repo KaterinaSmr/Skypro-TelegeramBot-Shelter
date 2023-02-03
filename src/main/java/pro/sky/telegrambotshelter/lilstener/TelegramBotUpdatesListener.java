@@ -68,6 +68,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         case INFO:
                             sendInfoSubmenu(chatId);
                             break;
+                        case GET_A_DOG:
+                            sendGetADogSubmenu(chatId);
+                            break;
                         case CALL_A_VOLUNTEER:
                             callAVolunteer(chatId);
                             break;
@@ -98,32 +101,48 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     case GO_BACK:
                         sendStartMenu(chatId, update.callbackQuery().message().chat().firstName());
                         break;
+                    case GET_A_DOG_INFO:
+                        getADogInfo(chatId);
+                        break;
+                    case MEETING_DOG_INFO:
+                        sendFirstMeetingInfo(chatId);
+                        break;
+                    case ADOPTION_DOCS:
+                        sendAdoptionDocumentsInfo(chatId);
+                        break;
+                    case ADOPTION_REFUSAL:
+                        sendRefusalInfo(chatId);
+                        break;
+                    case TRANSPORTATION:
+                        sendTransportationIfo(chatId);
+                        break;
+                    case HOUSE_ACCOMMODATION:
+                        sendHouseMenu(chatId);
+                        break;
+                    case PUPPY_HOUSE_PREPARATION:
+                        sendPuppyHousePrepDetails(chatId);
+                        break;
+                    case DOG_HOUSE_PREPARATION:
+                        sendDogHousePrepDetails(chatId);
+                        break;
+                    case DOG_HANDICAP_HOUSE_PREP:
+                        sendDogHandicapHousePrepDetails(chatId);
+                        break;
+                    case CYNOLOGIST_ADVICE:
+                        sendCynologistAdvice(chatId);
+                        break;
+                    case CYNOLOGIST_LIST:
+                        sendCynologistList(chatId);
+                        break;
+
                 }
             }
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 
-    private void callAVolunteer(long chatId) {
-        sendMessage(chatId, "Call a volunteer");
-    }
 
-    private void savaContacts(long chatId) {
-        sendMessage(chatId, "Save contacts");
-    }
 
-    private void sendSafetyInfo(long chatId) {
-        sendMessage(chatId, "Some safety info");
-    }
-
-    private void sendAddressData(long chatId) {
-        sendMessage(chatId, "Some address info");
-    }
-
-    private void sendAboutShelter(long chatId) {
-        sendMessage(chatId, "Info about our shelter");
-
-    }
 
     private void sendMessage(long chatId, String message){
         telegramBot.execute(new SendMessage(chatId, message));
@@ -149,7 +168,117 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         };
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(keyboard);
         SendMessage message = new SendMessage(chatId, "Please select").replyMarkup(inlineKeyboardMarkup);
-        System.out.println("respond Info");
         telegramBot.execute(message);
     }
+
+    private final String GET_A_DOG_INFO = "/getadoginfo";
+    private final String MEETING_DOG_INFO = "/meetingdog";
+    private final String ADOPTION_DOCS ="/adoptiondocs";
+    private final String ADOPTION_REFUSAL="/adoptionrefusal";
+
+    private final String TRANSPORTATION = "/transportation";
+
+    private final String HOUSE_ACCOMMODATION = "/houseaccommodation";
+    private final String PUPPY_HOUSE_PREPARATION = "/puppyhouse";
+    private final String DOG_HOUSE_PREPARATION = "/doghouse";
+    private final String DOG_HANDICAP_HOUSE_PREP="/doghandicap";
+
+    private final String CYNOLOGIST_ADVICE ="/cynologadvice";
+    private final String CYNOLOGIST_LIST="/cynologlist";
+
+
+    private void sendGetADogSubmenu(long chatId) {
+        InlineKeyboardButton[][] keyboard = {
+                {new InlineKeyboardButton("Как взять собаку").callbackData(GET_A_DOG_INFO),
+                        new InlineKeyboardButton("Транспортировка").callbackData(TRANSPORTATION),
+                        new InlineKeyboardButton("Подготовка дома").callbackData(HOUSE_ACCOMMODATION)},
+                {new InlineKeyboardButton("Советы кинолога").callbackData(CYNOLOGIST_ADVICE),
+                        new InlineKeyboardButton("Список кинологов").callbackData(CYNOLOGIST_LIST)},
+                {new InlineKeyboardButton("Оставить контактные данные").callbackData(SAVE_CONTACTS),
+                        new InlineKeyboardButton("Позвать волонтера").callbackData(CALL_A_VOLUNTEER)},
+                {new InlineKeyboardButton("<< Вернуться").callbackData(GO_BACK)}
+        };
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(keyboard);
+        SendMessage message = new SendMessage(chatId, "Please select").replyMarkup(inlineKeyboardMarkup);
+        telegramBot.execute(message);
+    }
+
+    private void getADogInfo(long chatId){
+        InlineKeyboardButton[] keyboard = {new InlineKeyboardButton("Первая встреча").callbackData(MEETING_DOG_INFO),
+                        new InlineKeyboardButton("Документы").callbackData(ADOPTION_DOCS),
+                        new InlineKeyboardButton("Причины отказа").callbackData(ADOPTION_REFUSAL)};
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(keyboard);
+        SendMessage message = new SendMessage(chatId, "Please select").replyMarkup(inlineKeyboardMarkup);
+        telegramBot.execute(message);
+    }
+
+    private void sendHouseMenu(long chatId) {
+        InlineKeyboardButton[][] keyboard = {
+                {new InlineKeyboardButton("Щенок").callbackData(PUPPY_HOUSE_PREPARATION),
+                        new InlineKeyboardButton("Взрослая собака").callbackData(DOG_HOUSE_PREPARATION)},
+                {new InlineKeyboardButton("Собака с органиченными возможностями").callbackData(DOG_HANDICAP_HOUSE_PREP)},
+        };
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(keyboard);
+        SendMessage message = new SendMessage(chatId, "Please select").replyMarkup(inlineKeyboardMarkup);
+        telegramBot.execute(message);
+    }
+
+
+    private void sendTransportationIfo(long chatId){
+        sendMessage(chatId, "Рекомендации по транспортировке");
+    }
+    private void sendFirstMeetingInfo(long chatId){
+        sendMessage(chatId, "Подготовка к первой встрече");
+    }
+
+    private void sendAdoptionDocumentsInfo(long chatId){
+        sendMessage (chatId, "Список документов для усыновления");
+    }
+
+    private void sendRefusalInfo(long chatId){
+        sendMessage(chatId, "Причины отказа в усыновлении");
+    }
+
+    private void callAVolunteer(long chatId) {
+        sendMessage(chatId, "Call a volunteer");
+    }
+
+    private void savaContacts(long chatId) {
+        sendMessage(chatId, "Save contacts");
+    }
+
+    private void sendSafetyInfo(long chatId) {
+        sendMessage(chatId, "Some safety info");
+    }
+
+    private void sendAddressData(long chatId) {
+        sendMessage(chatId, "Some address info");
+    }
+
+    private void sendAboutShelter(long chatId) {
+        sendMessage(chatId, "Info about our shelter");
+
+    }
+
+    private void sendDogHandicapHousePrepDetails(long chatId) {
+        sendMessage(chatId, "Рекомендации по подготовке дома для собаки с ограниченными возможностями");
+    }
+
+    private void sendDogHousePrepDetails(long chatId) {
+        sendMessage(chatId, "Рекомендации по подготовке дома для взрослой собаки");
+    }
+
+    private void sendPuppyHousePrepDetails(long chatId) {
+        sendMessage(chatId, "Рекомендации по подготовке дома для щенка");
+    }
+
+    private void sendCynologistList(long chatId) {
+        sendMessage(chatId, "Перечень проверенных кинологов");
+    }
+
+    private void sendCynologistAdvice(long chatId) {
+        sendMessage(chatId, "Рекомендации кинолога");
+    }
+
+
 }
