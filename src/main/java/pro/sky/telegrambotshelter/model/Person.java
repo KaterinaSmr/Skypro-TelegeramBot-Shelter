@@ -4,6 +4,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import java.util.Objects;
 
 @Entity
@@ -13,12 +16,22 @@ public class Person {
     private int id;
 
     private long chatId;
+    @NotEmpty(message = "Имя не должно быть пустым")
     private String firstName;
+    @NotEmpty(message = "Имя не должно быть пустым")
     private String lastName;
+    @NotEmpty(message = "Номер телефона не должен быть пустым")
+    @Pattern(regexp="(\\+[\\d]{11})", message = "Номер телефона должен состоять из кода страны (+7) и 10 цифр")
     private String phone;
+    @NotEmpty(message = "Адрес электронной почты не должен быть пустым")
+    @Email(message = "Должен быть указан корректный адрес электронной почты")
     private String email;
 
     public Person() {
+    }
+
+    public Person(long chatId) {
+        this.chatId = chatId;
     }
 
     public Person(long chatId, String firstName, String lastName, String phone, String email) {

@@ -29,6 +29,10 @@ public class PersonService {
         return personRepository.findByChatId(chatId);
     }
 
+    public void save(Person person) {
+        personRepository.save(person);
+    }
+
     public void remove(int personId){
         personRepository.deleteById(personId);
     }

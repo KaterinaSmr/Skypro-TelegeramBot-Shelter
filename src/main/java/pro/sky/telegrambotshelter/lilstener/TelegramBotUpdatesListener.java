@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.service.AdoptionReportService;
 import pro.sky.telegrambotshelter.service.AdoptionService;
@@ -19,6 +20,9 @@ import java.util.List;
 
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
+
+    @Value("${newperson.path}")
+    private String addPersonPath;
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
     private final PersonService personService;
@@ -93,7 +97,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         sendSafetyInfo(chatId);
                         break;
                     case SAVE_CONTACTS:
-                        savaContacts(chatId);
+                        saveContacts(chatId);
                         break;
                     case CALL_A_VOLUNTEER:
                         callAVolunteer(chatId);
@@ -158,11 +162,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     private void sendInfoSubmenu(long chatId) {
+        String path = addPersonPath + chatId;
         InlineKeyboardButton[][] keyboard = {
                 {new InlineKeyboardButton("О приюте").callbackData(ABOUT_SHELTER),
                         new InlineKeyboardButton("Расписание, адрес, \nсхема проезда").callbackData(ADDRESS),
                         new InlineKeyboardButton("Правила безопасности").callbackData(SAFETY_MEASURES)},
-                {new InlineKeyboardButton("Оставить контактные данные").callbackData(SAVE_CONTACTS),
+                {
+                    new InlineKeyboardButton("Оставить контактные данные").url(path),
                         new InlineKeyboardButton("Позвать волонтера").callbackData(CALL_A_VOLUNTEER)},
                 {new InlineKeyboardButton("<< Вернуться").callbackData(GO_BACK)}
         };
@@ -243,7 +249,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         sendMessage(chatId, "Call a volunteer");
     }
 
-    private void savaContacts(long chatId) {
+    private void saveContacts(long chatId) {
         sendMessage(chatId, "Save contacts");
     }
 
