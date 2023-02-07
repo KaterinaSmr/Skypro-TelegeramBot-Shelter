@@ -27,9 +27,9 @@ public class AdoptionService {
         return adoptionRepository.findById(id).orElse(null);
     }
 
-    public List<Adoption> findByChatId(long chatId){
+    public Adoption findByChatId(long chatId){
         Person person = personService.findPersonByChatId(chatId)
                 .orElseThrow(PersonNotFoundException::new);
-        return adoptionRepository.findAllByPerson(person);
+        return adoptionRepository.findByPerson(person);
     }
 }

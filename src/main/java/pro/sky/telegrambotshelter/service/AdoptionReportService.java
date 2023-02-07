@@ -28,11 +28,7 @@ public class AdoptionReportService {
         return adoptionReportRepository.findAllByAdoptionAndReportDate(adoption, date);
     }
 
-    public void addReport(Adoption adoption, String mediaType, String text, LocalDate date) {
-        Path filePath = Path.of(reportsDir, String.valueOf(adoption.getId()), date.toString(), "1.txt");
-        AdoptionReport report = new AdoptionReport(adoption, filePath.toString(), mediaType, text, date);
-        adoptionReportRepository.save(report);
+    public void save(AdoptionReport adoptionReport) {
+        adoptionReportRepository.save(adoptionReport);
     }
-
-
 }

@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface AdoptionRepository extends JpaRepository<Adoption, Integer> {
 
-    List<Adoption> findAllByPerson(Person person);
+    Adoption findByPerson(Person person);
 }
