@@ -5,7 +5,7 @@
     <title>Title</title>
 </head>
 <body>
-<form th:method="POST" th:object="${person}" th:action="@{/person/{chatId}(chatId=${person.getChatId()})}">
+<form th:method="POST" th:object="${person}" th:action="@{/newperson/{chatId}(chatId=${person.getChatId()})}">
     <div>
         <label for="firstName">Имя&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
         <input type="text" th:field="*{firstName}" id="firstName"><br>

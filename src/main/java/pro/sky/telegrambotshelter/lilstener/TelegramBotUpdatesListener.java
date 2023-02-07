@@ -37,8 +37,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private static final int MAX_FILES = 10;
 
-    @Value("${newperson.path}")
-    private String addPersonPath;
+    @Value("${newperson.url}")
+    private String addPersonUrl;
+    @Value("${cynologist.advice.url}")
+    private String cynologistAdviceUrl;
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
     private final PersonService personService;
@@ -69,8 +71,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private static  final String DOG_HANDICAP_HOUSE_PREP="/doghandicap";
     private static  final String CYNOLOGIST_ADVICE ="/cynologadvice";
     private static  final String CYNOLOGIST_LIST="/cynologlist";
-    private static final String YES = "/yes";
-    private static final String NO = "/no" ;
 
     public TelegramBotUpdatesListener(PersonService personService, PetService petService, AdoptionService adoptionService, AdoptionReportService adoptionReportService, TelegramBot telegramBot) {
         this.personService = personService;
@@ -85,7 +85,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         telegramBot.setUpdatesListener(this);
     }
 
-
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
@@ -95,23 +94,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 long chatId = update.message().chat().id();
                 if (message != null) {
                     switch (message) {
-                        case START:
-                            sendStartMenu(chatId, update.message().chat().firstName());
-                            break;
-                        case INFO:
-                            sendInfoSubmenu(chatId);
-                            break;
-                        case REPORT:
-                            sendReportInfo(chatId);
-                            break;
-                        case GET_A_DOG:
-                            sendGetADogSubmenu(chatId);
-                            break;
-                        case CALL_A_VOLUNTEER:
-                            callAVolunteer(chatId);
-                            break;
-                        default:
-                            processUnknownRequest(chatId, message);
+                        case START -> sendStartMenu(chatId, update.message().chat().firstName());
+                        case INFO -> sendInfoSubmenu(chatId);
+                        case REPORT -> sendReportInfo(chatId);
+                        case GET_A_DOG -> sendGetADogSubmenu(chatId);
+                        case CALL_A_VOLUNTEER -> callAVolunteer(chatId);
+                        default -> processUnknownRequest(chatId, message);
                     }
                 } else if (update.message().photo()!=null){
                     PhotoSize[] photos = update.message().photo();
@@ -126,58 +114,26 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             } else if(update.callbackQuery() != null){
                 String data = update.callbackQuery().data();
                 long chatId = update.callbackQuery().message().chat().id();
-                switch (data){
-                    case ABOUT_SHELTER:
-                        sendAboutShelter(chatId);
-                        break;
-                    case ADDRESS:
-                        sendAddressData(chatId);
-                        break;
-                    case SAFETY_MEASURES:
-                        sendSafetyInfo(chatId);
-                        break;
-                    case SAVE_CONTACTS:
-                        saveContacts(chatId);
-                        break;
-                    case CALL_A_VOLUNTEER:
-                        callAVolunteer(chatId);
-                        break;
-                    case GO_BACK:
-                        sendStartMenu(chatId, update.callbackQuery().message().chat().firstName());
-                        break;
-                    case GET_A_DOG_INFO:
-                        getADogInfo(chatId);
-                        break;
-                    case MEETING_DOG_INFO:
-                        sendFirstMeetingInfo(chatId);
-                        break;
-                    case ADOPTION_DOCS:
-                        sendAdoptionDocumentsInfo(chatId);
-                        break;
-                    case ADOPTION_REFUSAL:
-                        sendRefusalInfo(chatId);
-                        break;
-                    case TRANSPORTATION:
-                        sendTransportationIfo(chatId);
-                        break;
-                    case HOUSE_ACCOMMODATION:
-                        sendHouseMenu(chatId);
-                        break;
-                    case PUPPY_HOUSE_PREPARATION:
-                        sendPuppyHousePrepDetails(chatId);
-                        break;
-                    case DOG_HOUSE_PREPARATION:
-                        sendDogHousePrepDetails(chatId);
-                        break;
-                    case DOG_HANDICAP_HOUSE_PREP:
-                        sendDogHandicapHousePrepDetails(chatId);
-                        break;
-                    case CYNOLOGIST_ADVICE:
-                        sendCynologistAdvice(chatId);
-                        break;
-                    case CYNOLOGIST_LIST:
-                        sendCynologistList(chatId);
-                        break;
+                switch (data) {
+                    case ABOUT_SHELTER -> sendMessage(chatId, "Info about our shelter");
+                    case ADDRESS -> sendMessage(chatId, "Some address info");
+                    case SAFETY_MEASURES -> sendMessage(chatId, "Some safety info");
+                    case SAVE_CONTACTS -> sendMessage(chatId, "Save contacts");
+                    case CALL_A_VOLUNTEER -> callAVolunteer(chatId);
+                    case GO_BACK -> sendStartMenu(chatId, update.callbackQuery().message().chat().firstName());
+                    case GET_A_DOG_INFO -> getADogInfo(chatId);
+                    case MEETING_DOG_INFO -> sendMessage(chatId, "Подготовка к первой встрече");
+                    case ADOPTION_DOCS -> sendMessage(chatId, "Список документов для усыновления");
+                    case ADOPTION_REFUSAL -> sendMessage(chatId, "Причины отказа в усыновлении");
+                    case TRANSPORTATION -> sendMessage(chatId, "Рекомендации по транспортировке");
+                    case HOUSE_ACCOMMODATION -> sendHouseMenu(chatId);
+                    case PUPPY_HOUSE_PREPARATION -> sendMessage(chatId, "Рекомендации по подготовке дома для щенка");
+                    case DOG_HOUSE_PREPARATION ->
+                            sendMessage(chatId, "Рекомендации по подготовке дома для взрослой собаки");
+                    case DOG_HANDICAP_HOUSE_PREP ->
+                            sendMessage(chatId, "Рекомендации по подготовке дома для собаки с ограниченными возможностями");
+                    case CYNOLOGIST_ADVICE -> sendMessage(chatId, "Рекомендации кинолога");
+                    case CYNOLOGIST_LIST -> sendMessage(chatId, "Перечень проверенных кинологов");
                 }
             }
         });
@@ -213,7 +169,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 - Изменение в поведении: отказ от старых привычек, приобретение новых.
                 """);
 
-//        System.out.println("waiting for update");
 //            GetUpdates getUpdates = new GetUpdates().limit(1).offset(0).timeout(2000);
 //            GetUpdatesResponse updatesResponse = telegramBot.execute(getUpdates);
 //            List<Update> updates = updatesResponse.updates();
@@ -248,11 +203,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         try(FileWriter out = new FileWriter(newFilePath.toFile());
             BufferedWriter bOut = new BufferedWriter(out, 1024)
         ){
-            out.write(message);
+            bOut.write(message);
         }
+        logger.info("Saved report file " + newFilePath);
 
         AdoptionReport adoptionReport = new AdoptionReport(adoption, newFilePath.toString(),
-                "text", "", LocalDate.now());
+                "text", LocalDate.now());
         adoptionReportService.save(adoptionReport);
         sendMessage(chatId, "Сообщение добавлено в отчет за " + LocalDate.now());
     }
@@ -291,7 +247,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         logger.info("File downloaded to: " + newFilePath);
 
         AdoptionReport adoptionReport = new AdoptionReport(adoption, newFilePath.toString(),
-                "photo", "text", LocalDate.now());
+                "photo", LocalDate.now());
         adoptionReportService.save(adoptionReport);
         sendMessage(chatId, "Фото добавлено в отчет за " + LocalDate.now());
     }
@@ -300,7 +256,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         Path parentPath = Path.of("reports", LocalDate.now().toString(), String.valueOf(adoptionId));
         Files.createDirectories(parentPath);
         int fileCounter = 1;
-        File newFile = null;
+        File newFile;
         while (fileCounter <= MAX_FILES) {
             newFile = new File(parentPath.toString(), fileCounter++ + "." + extension);
             System.out.println(newFile);
@@ -316,10 +272,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     private void sendMessage(long chatId, String message){
+        sendMessage(new SendMessage(chatId, message));
+    }
+
+    private void sendMessage(SendMessage sendMessage){
         try {
-            telegramBot.execute(new SendMessage(chatId, message));
+            telegramBot.execute(sendMessage);
         } catch (Exception e) {
-            logger.error("Message sending failed: chatId = " + chatId + " message: " + message);
+            logger.error("Message sending failed: + sendMessage: " + sendMessage);
             e.printStackTrace();
         }
     }
@@ -334,7 +294,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     private void sendInfoSubmenu(long chatId) {
-        String path = addPersonPath + chatId;
+        String path = addPersonUrl + chatId;
         InlineKeyboardButton[][] keyboard = {
                 {new InlineKeyboardButton("О приюте").callbackData(ABOUT_SHELTER),
                         new InlineKeyboardButton("Расписание, адрес, \nсхема проезда").callbackData(ADDRESS),
@@ -344,26 +304,24 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 {new InlineKeyboardButton("<< Вернуться").callbackData(GO_BACK)}
         };
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(keyboard);
-        SendMessage message = new SendMessage(chatId, "Пожалуйста, выберите что Вас интересует:").replyMarkup(inlineKeyboardMarkup);
-        telegramBot.execute(message);
+        sendMessage(new SendMessage(chatId, "Пожалуйста, выберите что Вас интересует:").replyMarkup(inlineKeyboardMarkup));
     }
 
 
     private void sendGetADogSubmenu(long chatId) {
-        String path = addPersonPath + chatId;
+        String path = addPersonUrl + chatId;
         InlineKeyboardButton[][] keyboard = {
                 {new InlineKeyboardButton("Как взять собаку").callbackData(GET_A_DOG_INFO),
                         new InlineKeyboardButton("Транспортировка").callbackData(TRANSPORTATION),
                         new InlineKeyboardButton("Подготовка дома").callbackData(HOUSE_ACCOMMODATION)},
-                {new InlineKeyboardButton("Советы кинолога").callbackData(CYNOLOGIST_ADVICE),
+                {new InlineKeyboardButton("Советы кинолога").url(cynologistAdviceUrl),
                         new InlineKeyboardButton("Список кинологов").callbackData(CYNOLOGIST_LIST)},
                 {new InlineKeyboardButton("Оставить контактные данные").url(path),
                         new InlineKeyboardButton("Позвать волонтера").callbackData(CALL_A_VOLUNTEER)},
                 {new InlineKeyboardButton("<< Вернуться").callbackData(GO_BACK)}
         };
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(keyboard);
-        SendMessage message = new SendMessage(chatId, "Пожалуйста, выберите что Вас интересует:").replyMarkup(inlineKeyboardMarkup);
-        telegramBot.execute(message);
+        sendMessage(new SendMessage(chatId, "Пожалуйста, выберите что Вас интересует:").replyMarkup(inlineKeyboardMarkup));
     }
 
     private void getADogInfo(long chatId){
@@ -371,8 +329,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         new InlineKeyboardButton("Документы").callbackData(ADOPTION_DOCS),
                         new InlineKeyboardButton("Причины отказа").callbackData(ADOPTION_REFUSAL)};
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(keyboard);
-        SendMessage message = new SendMessage(chatId, "Пожалуйста, выберите что Вас интересует:").replyMarkup(inlineKeyboardMarkup);
-        telegramBot.execute(message);
+        sendMessage(new SendMessage(chatId, "Пожалуйста, выберите что Вас интересует:").replyMarkup(inlineKeyboardMarkup));
     }
 
     private void sendHouseMenu(long chatId) {
@@ -382,66 +339,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 {new InlineKeyboardButton("Собака с органиченными возможностями").callbackData(DOG_HANDICAP_HOUSE_PREP)},
         };
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(keyboard);
-        SendMessage message = new SendMessage(chatId, "Пожалуйста, выберите что Вас интересует:").replyMarkup(inlineKeyboardMarkup);
-        telegramBot.execute(message);
-    }
-
-
-    private void sendTransportationIfo(long chatId){
-        sendMessage(chatId, "Рекомендации по транспортировке");
-    }
-    private void sendFirstMeetingInfo(long chatId){
-        sendMessage(chatId, "Подготовка к первой встрече");
-    }
-
-    private void sendAdoptionDocumentsInfo(long chatId){
-        sendMessage (chatId, "Список документов для усыновления");
-    }
-
-    private void sendRefusalInfo(long chatId){
-        sendMessage(chatId, "Причины отказа в усыновлении");
+        sendMessage(new SendMessage(chatId, "Пожалуйста, выберите что Вас интересует:").replyMarkup(inlineKeyboardMarkup));
     }
 
     private void callAVolunteer(long chatId) {
-        sendMessage(chatId, "Call a volunteer");
+        sendMessage(chatId, "Позвать волонтера");
     }
-
-    private void saveContacts(long chatId) {
-        sendMessage(chatId, "Save contacts");
-    }
-
-    private void sendSafetyInfo(long chatId) {
-        sendMessage(chatId, "Some safety info");
-    }
-
-    private void sendAddressData(long chatId) {
-        sendMessage(chatId, "Some address info");
-    }
-
-    private void sendAboutShelter(long chatId) {
-        sendMessage(chatId, "Info about our shelter");
-
-    }
-
-    private void sendDogHandicapHousePrepDetails(long chatId) {
-        sendMessage(chatId, "Рекомендации по подготовке дома для собаки с ограниченными возможностями");
-    }
-
-    private void sendDogHousePrepDetails(long chatId) {
-        sendMessage(chatId, "Рекомендации по подготовке дома для взрослой собаки");
-    }
-
-    private void sendPuppyHousePrepDetails(long chatId) {
-        sendMessage(chatId, "Рекомендации по подготовке дома для щенка");
-    }
-
-    private void sendCynologistList(long chatId) {
-        sendMessage(chatId, "Перечень проверенных кинологов");
-    }
-
-    private void sendCynologistAdvice(long chatId) {
-        sendMessage(chatId, "Рекомендации кинолога");
-    }
-
 
 }

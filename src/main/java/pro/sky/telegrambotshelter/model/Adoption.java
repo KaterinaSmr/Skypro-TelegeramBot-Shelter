@@ -1,5 +1,7 @@
 package pro.sky.telegrambotshelter.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -19,6 +21,7 @@ public class Adoption{
     private boolean probationFinished;
     private boolean adoptionConfirmed;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "adoption", fetch = FetchType.LAZY)
     private Collection<AdoptionReport> adoptionReports;
 

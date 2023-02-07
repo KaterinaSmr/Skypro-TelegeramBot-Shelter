@@ -15,12 +15,12 @@ public class PetService {
         this.petRepository = petRepository;
     }
 
-    public Pet add(String name, String kind, int year){
+    public Pet save(String name, String kind, int year){
         Pet newPet = new Pet(name, kind, year);
-        return add(newPet);
+        return save(newPet);
     }
 
-    public Pet add(Pet pet){
+    public Pet save(Pet pet){
         return petRepository.save(pet);
     }
 
@@ -32,6 +32,16 @@ public class PetService {
         return petRepository.findAll();
     }
 
+    public Pet edit(Pet pet) {
+        Pet petFound = get(pet.getId());
+        if (petFound == null){
+            return null;
+        }
+        return petRepository.save(pet);
+    }
 
+    public void delete(Integer id) {
+        petRepository.deleteById(id);
+    }
 }
 

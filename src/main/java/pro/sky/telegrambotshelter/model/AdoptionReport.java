@@ -15,17 +15,15 @@ public class AdoptionReport {
     private Adoption adoption;
     private String filePath;
     private String mediaType;
-    private String textReport;
     private LocalDate reportDate;
 
     public AdoptionReport() {
     }
 
-    public AdoptionReport(Adoption adoption, String filePath, String mediaType, String text, LocalDate date) {
+    public AdoptionReport(Adoption adoption, String filePath, String mediaType, LocalDate date) {
         this.adoption = adoption;
         this.filePath = filePath;
         this.mediaType = mediaType;
-        this.textReport = text;
         this.reportDate = date;
     }
 
@@ -55,14 +53,6 @@ public class AdoptionReport {
 
     public void setMediaType(String mediaType) {
         this.mediaType = mediaType;
-    }
-
-    public String getTextReport() {
-        return textReport;
-    }
-
-    public void setTextReport(String text) {
-        this.textReport = text;
     }
 
     public LocalDate getReportDate() {

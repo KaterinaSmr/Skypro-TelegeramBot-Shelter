@@ -53,6 +53,11 @@
 			<artifactId>hibernate-validator</artifactId>
 			<version>6.1.7.Final</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>1.6.12</version>
+		</dependency>
 	</dependencies>
 
 	<build>

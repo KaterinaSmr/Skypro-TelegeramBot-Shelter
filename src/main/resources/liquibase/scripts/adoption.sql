@@ -11,3 +11,7 @@ CREATE TABLE adoption
     probation_finished  BOOL,
     adoption_confirmed  BOOL
 )
+
+-- changeset egorbacheva:2
+ALTER TABLE adoption ADD UNIQUE (pet_id);
+ALTER TABLE adoption ADD UNIQUE (person_id);

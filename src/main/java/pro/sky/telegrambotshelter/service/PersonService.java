@@ -2,6 +2,7 @@ package pro.sky.telegrambotshelter.service;
 
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.model.Person;
+import pro.sky.telegrambotshelter.model.Pet;
 import pro.sky.telegrambotshelter.repository.PersonRepository;
 
 import java.util.Collection;
@@ -29,11 +30,35 @@ public class PersonService {
         return personRepository.findByChatId(chatId);
     }
 
-    public void save(Person person) {
-        personRepository.save(person);
+    public Person save(Person person) {
+        if (findPersonByChatId(person.getChatId()).isPresent()){
+            System.out.println("Дублированный chatId!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            return null;
+        }
+        return personRepository.save(person);
     }
 
     public void remove(int personId){
         personRepository.deleteById(personId);
+    }
+
+    public Person get(Integer personId) {
+        return personRepository.findById(personId).orElse(null);
+    }
+
+    public Collection<Person> getAll() {
+        return personRepository.findAll();
+    }
+
+    public Person edit(Person person) {
+        Person personFound = get(person.getId());
+        if (personFound == null){
+            return null;
+        }
+        return personRepository.save(person);
+    }
+
+    public void delete(Integer id) {
+        personRepository.deleteById(id);
     }
 }

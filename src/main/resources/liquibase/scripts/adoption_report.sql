@@ -14,3 +14,7 @@ CREATE TABLE adoption_report
 -- changeset egorbacheva:2
 ALTER TABLE adoption_report
 RENAME COLUMN text_repot TO text_report;
+
+-- changeset egrobacheva:3
+ALTER TABLE adoption_report
+DROP COLUMN text_report;
