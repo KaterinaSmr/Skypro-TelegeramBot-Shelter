@@ -13,6 +13,7 @@ import com.pengrad.telegrambot.response.GetFileResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionReport;
@@ -207,8 +208,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
         logger.info("Saved report file " + newFilePath);
 
+        String contentType = Files.probeContentType(newFilePath);
         AdoptionReport adoptionReport = new AdoptionReport(adoption, newFilePath.toString(),
-                "text", LocalDate.now());
+                contentType, LocalDate.now());
         adoptionReportService.save(adoptionReport);
         sendMessage(chatId, "Сообщение добавлено в отчет за " + LocalDate.now());
     }
@@ -221,6 +223,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             return;
         }
         PhotoSize p = Arrays.stream(photos).max(Comparator.comparingInt(PhotoSize::fileSize)).orElse(null);
+        p.fileSize();
         GetFile request = new GetFile(p.fileId());
         GetFileResponse getFileResponse= telegramBot.execute(request);
         com.pengrad.telegrambot.model.File file = getFileResponse.file();
@@ -246,8 +249,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
         logger.info("File downloaded to: " + newFilePath);
 
+        String contentType = Files.probeContentType(newFilePath);
         AdoptionReport adoptionReport = new AdoptionReport(adoption, newFilePath.toString(),
-                "photo", LocalDate.now());
+                contentType, LocalDate.now());
         adoptionReportService.save(adoptionReport);
         sendMessage(chatId, "Фото добавлено в отчет за " + LocalDate.now());
     }

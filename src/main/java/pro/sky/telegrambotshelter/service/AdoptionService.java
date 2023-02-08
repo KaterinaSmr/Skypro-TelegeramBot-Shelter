@@ -43,6 +43,10 @@ public class AdoptionService {
         return adoptionRepository.findByPet(pet);
     }
 
+    public Collection<Adoption> getAdoptionsWithActiveProbation(){
+        return adoptionRepository.findAllByProbationFinished(false);
+    }
+
     public Adoption getByPersonId(Integer personId) {
         Person person = personService.get(personId);
         if (person == null) {

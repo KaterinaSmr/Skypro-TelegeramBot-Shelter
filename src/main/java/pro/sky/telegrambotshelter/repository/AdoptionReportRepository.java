@@ -8,6 +8,9 @@ import java.time.LocalDate;
 import java.util.Collection;
 
 public interface AdoptionReportRepository extends JpaRepository<AdoptionReport, Integer> {
-
     Collection<AdoptionReport> findAllByAdoptionAndReportDate(Adoption adoption, LocalDate reportDate);
+
+    Collection<AdoptionReport> findAllByReportDate(LocalDate reportDate);
+
+    Collection<AdoptionReport> findAllByReportDateBetween(LocalDate from, LocalDate to);
 }
