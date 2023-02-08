@@ -6,6 +6,10 @@ import pro.sky.telegrambotshelter.repository.PetRepository;
 
 import java.util.Collection;
 
+/**
+ * A Service class to perform CRUD operations with the "pet" table in database.
+ * @author Ekaterina Gorbacheva
+ */
 @Service
 public class PetService {
 

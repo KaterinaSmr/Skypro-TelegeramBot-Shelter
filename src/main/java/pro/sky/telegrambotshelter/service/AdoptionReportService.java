@@ -10,6 +10,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Optional;
 
+/**
+ * A Service class to perform CRUD operations with the "adoption_report" table in database.
+ * @author Ekaterina Gorbacheva
+ */
 @Service
 public class AdoptionReportService {
     private final AdoptionReportRepository adoptionReportRepository;
@@ -26,6 +30,12 @@ public class AdoptionReportService {
         return adoptionReportRepository.findAll();
     }
 
+    /**
+     * A method to receive a {@link Collection} of all {@link AdoptionReport} records saved in db table
+     * "adoption_report" for a specific date. Uses {@link AdoptionReportRepository}
+     * @param date in String format ("ddMMyyyy")
+     * @return {@link Collection} of {@link AdoptionReport} objects with the date specified
+     */
     public Collection<AdoptionReport> findAllByDate(String date){
         LocalDate reportDate = LocalDate.parse(date, formatter);
         return adoptionReportRepository.findAllByReportDate(reportDate);

@@ -13,7 +13,6 @@ import com.pengrad.telegrambot.response.GetFileResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionReport;
@@ -36,12 +35,19 @@ import java.util.List;
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
+    /**
+     * Maximum quantity of report files per day.
+     * This amount of pictures will be accepted for a daily report.
+     * In addition, the same amount of text messages will be accepted for a daily report.
+     */
     private static final int MAX_FILES = 10;
 
+    @Value("${reports.path.dir}")
+    private static String reportsPath;
     @Value("${newperson.url}")
-    private String addPersonUrl;
+    private static String addPersonUrl;
     @Value("${cynologist.advice.url}")
-    private String cynologistAdviceUrl;
+    private static String cynologistAdviceUrl;
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
     private final PersonService personService;
@@ -141,6 +147,18 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 
+    /**
+     * This method treats unknown messages from registered users with active adoptions as probation daily report messages.
+     * The text message content is saved as '.txt' file with the
+     * {@link TelegramBotUpdatesListener#saveTextReport(long, Adoption, String)} method.
+     * Files are saved in the {@link TelegramBotUpdatesListener#reportsPath}, where they can later be accessed
+     * to be reviewed.
+     * The chatId is the key to identify whether the user has active probation adoptions or not with the use of
+     * {@link AdoptionService#findByChatId(long)} method.
+     * Messages from users without active probation will be ignored.
+     * @param chatId telegram chat identification of the user
+     * @param message text message sent from user
+     */
     private void processUnknownRequest(long chatId, String message) {
         Adoption adoption = adoptionService.findByChatId(chatId);
         if (adoption != null) {
@@ -194,8 +212,21 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     }
 
+    /**
+     * This method saves messages from users as dayily reports.
+     * Files are saved in the {@link TelegramBotUpdatesListener#reportsPath}, under the directory with relevant date
+     * and adoptionId from {@link Adoption} where they can later be accessed to be reviewed.
+     * The limit is {@value MAX_FILES} messages a day. If the amount is exceeded, the users receives a notification to
+     * call a volunteer.
+     * If report saving is successful, then it is also saved to the "adoption_repot" table with the use of
+     * {@link AdoptionReportService}
+     * @param chatId of a reporting person
+     * @param adoption {@link Adoption} object corresponding to the user
+     * @param message text message received from user to be saved as report
+     * @throws IOException
+     */
     private void saveTextReport(long chatId, Adoption adoption, String message) throws IOException {
-        Path newFilePath = getFilePath(adoption.getId(),"txt");
+        Path newFilePath = getFilePathUtil(adoption.getId(),"txt");
         if (newFilePath == null){
             sendMessage(chatId,"Не удалось сохранить отчет. Превышено количество сообщений за" + LocalDate.now()
                     +  ". Пожалуйста обратитесь к волонтеру");
@@ -215,6 +246,21 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         sendMessage(chatId, "Сообщение добавлено в отчет за " + LocalDate.now());
     }
 
+    /**
+     * This method threats all incoming images from user as daily report.
+     * If the user is not identified as active person with adopted animal on probation, then the photo is ignored,
+     * and user is informed about this.
+     * This method downloads the photo from telegram server and saves it locally to the
+     * {@link TelegramBotUpdatesListener#reportsPath} directory under corresponding date and adoptionId
+     * directories where they can later be accessed to be reviewed.
+     * The limit is {@value MAX_FILES} messages a day. If the amount is exceeded, the users receives a notification to
+     * call a volunteer.
+     * If report saving is successful, then it is also saved to the "adoption_repot" table with the use of
+     * {@link AdoptionReportService}
+     * @param photos images received from user
+     * @param chatId telegram chat identification for the user
+     * @throws IOException
+     */
     private void savePhotoReport(PhotoSize[] photos, long chatId) throws IOException {
         Adoption adoption = adoptionService.findByChatId(chatId);
         if (adoption == null){
@@ -232,8 +278,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         logger.info("Downloading file: " + fullPath);
 
         int adoptionId = adoption.getId();
-        String extension = getExtension(file.filePath());
-        Path newFilePath = getFilePath(adoptionId, extension);
+        String extension = getExtensionUtil(file.filePath());
+        Path newFilePath = getFilePathUtil(adoptionId, extension);
         if (newFilePath == null){
             sendMessage(chatId,"Не удалось сохранить фото в отчет. Превышено количество фото за" + LocalDate.now()
                     +  "Пожалуйста обратитесь к волонтеру");
@@ -256,8 +302,19 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         sendMessage(chatId, "Фото добавлено в отчет за " + LocalDate.now());
     }
 
-    private Path getFilePath(int adoptionId, String extension) throws IOException{
-        Path parentPath = Path.of("reports", LocalDate.now().toString(), String.valueOf(adoptionId));
+    /**
+     * This is an util method to compose a file path and name for adoption report files.
+     * Parent path is composed of {@link TelegramBotUpdatesListener#reportsPath} directory, then current date directory,
+     * then adoptionId directory.
+     * For files naming it uses consequential numeration of files from 1 to {@value MAX_FILES} plus extension got from
+     * the {@link TelegramBotUpdatesListener#getExtensionUtil(String)}
+     * @param adoptionId an identification of {@link Adoption} object relevant to current user
+     * @param extension file extension ('.txt' for text reports and actual file extention for images received from users)
+     * @return Path for a new report file, or null if the amount of files exceeds {@value MAX_FILES}
+     * @throws IOException
+     */
+    private Path getFilePathUtil(int adoptionId, String extension) throws IOException{
+        Path parentPath = Path.of(reportsPath, LocalDate.now().toString(), String.valueOf(adoptionId));
         Files.createDirectories(parentPath);
         int fileCounter = 1;
         File newFile;
@@ -271,7 +328,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return null;
     }
 
-    private String getExtension(String fileName) {
+    private String getExtensionUtil(String fileName) {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 

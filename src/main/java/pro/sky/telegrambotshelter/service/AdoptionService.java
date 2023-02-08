@@ -9,6 +9,10 @@ import pro.sky.telegrambotshelter.repository.AdoptionRepository;
 
 import java.util.Collection;
 
+/**
+ * A Service class to perform CRUD operations with the "adoption" table in database.
+ * @author Ekaterina Gorbacheva
+ */
 @Service
 public class AdoptionService {
     private final AdoptionRepository adoptionRepository;
@@ -47,7 +51,15 @@ public class AdoptionService {
         return adoptionRepository.findAllByProbationFinished(false);
     }
 
-    public Adoption getByPersonId(Integer personId) {
+    /**
+     * A method to get an {@link Adoption} object for a paticular {@link Person} object from "adoption" table in db.
+     * Uses {@link AdoptionRepository}
+     * @param personId identification of a {@link Person}
+     * @return {@link Adoption} object if found, null if {@link Person} with this id does not exist,
+     * or {@link Adoption} record for this person is not found
+     * @see PersonService
+     */
+    public Adoption getByPersonId(int personId) {
         Person person = personService.get(personId);
         if (person == null) {
             return null;
@@ -55,6 +67,16 @@ public class AdoptionService {
         return adoptionRepository.findByPerson(person);
     }
 
+    /**
+     * A method to save a new {@link Adoption} record to the "adoption" table. Uses {@link AdoptionRepository}.
+     * The new {@link Adoption} object must contain unique personId and petId values. If the "adoption" table
+     * already contains a record with the same personId or petId, then the new {@link Adoption} object is not saved
+     * to the db table.
+     * @param adoption {@link Adoption} object to be saved
+     * @return newly saved {@link Adoption} object, or null in case of duplicated personId or petId
+     * @see PersonService
+     * @see PetService
+     */
     public Adoption save(Adoption adoption){
         if (getByPersonId(adoption.getPerson().getId()) != null || getByPetId(adoption.getPet().getId()) != null)
             return null;
@@ -63,7 +85,7 @@ public class AdoptionService {
 
     public Adoption edit(Adoption adoption) {
         Adoption adoptionFound = findById(adoption.getId());
-        if (adoption == null){
+        if (adoptionFound == null){
             return null;
         }
         return adoptionRepository.save(adoption);
