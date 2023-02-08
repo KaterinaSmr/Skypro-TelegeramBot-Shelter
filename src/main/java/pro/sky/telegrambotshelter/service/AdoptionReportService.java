@@ -5,6 +5,8 @@ import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionReport;
 import pro.sky.telegrambotshelter.repository.AdoptionReportRepository;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
@@ -59,5 +61,18 @@ public class AdoptionReportService {
 
     public Optional<AdoptionReport> findById(Integer id) {
         return adoptionReportRepository.findById(id);
+    }
+
+    public AdoptionReport delete(Integer id, Boolean removeFile) {
+        AdoptionReport adoptionReport = adoptionReportRepository.findById(id).orElse(null);
+        if (adoptionReport == null){
+            return null;
+        }
+        if (removeFile){
+            File file = new File(adoptionReport.getFilePath());
+            file.delete();
+        }
+        adoptionReportRepository.deleteById(id);
+        return adoptionReport;
     }
 }

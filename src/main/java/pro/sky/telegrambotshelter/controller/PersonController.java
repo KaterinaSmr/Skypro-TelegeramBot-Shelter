@@ -9,6 +9,16 @@ import pro.sky.telegrambotshelter.service.PersonService;
 
 import javax.validation.Valid;
 
+/**
+ * This controller displays a form for saving contact information to a user.
+ * An html page with the form is shown.
+ * User may enter his/her personal information and send a request to save it.
+ * This controller will save it to the database table "person"
+ * This controller performs some checks for whether the information provided is valid or not
+ * as it is required by the {@link Person} class
+ * @see PersonService
+ * @see Person
+ */
 @Controller
 @RequestMapping("/newperson")
 public class PersonController {
