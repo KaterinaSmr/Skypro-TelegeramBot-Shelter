@@ -40,14 +40,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * This amount of pictures will be accepted for a daily report.
      * In addition, the same amount of text messages will be accepted for a daily report.
      */
-    private static final int MAX_FILES = 10;
+    private static final int MAX_FILES = 1;
 
     @Value("${reports.path.dir}")
-    private static String reportsPath;
+    private String reportsPath;
     @Value("${newperson.url}")
-    private static String addPersonUrl;
+    private String addPersonUrl;
     @Value("${cynologist.advice.url}")
-    private static String cynologistAdviceUrl;
+    private String cynologistAdviceUrl;
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
     private final PersonService personService;
@@ -179,10 +179,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 Ежедневный отчет должен включать:\n 
                 1) Фото животного. Пожалуйста отправьте от 1 до """
                 + MAX_FILES + """
-                фото.\n 
+                 фото.\n 
                 2) Текстовый отчет. Пожалуйста отправьте текстовый отчет отдельным от фото сообщением (от 1 до"""
                 + MAX_FILES + """
-                сообщений. Отчет должен включать: 
+                 сообщений. Отчет должен включать: 
                 - Рацион животного. 
                 - Общее самочувствие и привыкание к новому месту.
                 - Изменение в поведении: отказ от старых привычек, приобретение новых.
@@ -228,7 +228,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private void saveTextReport(long chatId, Adoption adoption, String message) throws IOException {
         Path newFilePath = getFilePathUtil(adoption.getId(),"txt");
         if (newFilePath == null){
-            sendMessage(chatId,"Не удалось сохранить отчет. Превышено количество сообщений за" + LocalDate.now()
+            sendMessage(chatId,"Не удалось сохранить отчет. Превышено количество сообщений за " + LocalDate.now()
                     +  ". Пожалуйста обратитесь к волонтеру");
             return;
         }
@@ -281,8 +281,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         String extension = getExtensionUtil(file.filePath());
         Path newFilePath = getFilePathUtil(adoptionId, extension);
         if (newFilePath == null){
-            sendMessage(chatId,"Не удалось сохранить фото в отчет. Превышено количество фото за" + LocalDate.now()
-                    +  "Пожалуйста обратитесь к волонтеру");
+            sendMessage(chatId,"Не удалось сохранить фото в отчет. Превышено количество фото за " + LocalDate.now()
+                    +  ". Пожалуйста обратитесь к волонтеру");
             return;
         }
 
