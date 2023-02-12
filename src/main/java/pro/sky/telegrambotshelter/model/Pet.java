@@ -1,9 +1,6 @@
 package pro.sky.telegrambotshelter.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
@@ -13,15 +10,17 @@ public class Pet {
     private int id;
 
     private String name;
-    private String kind;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pet_kind")
+    private PetKind petKind;
     private int yearOfBirth;
 
     public Pet() {
     }
 
-    public Pet(String name, String kind, int yearOfBirth) {
+    public Pet(String name, PetKind petKind, int yearOfBirth) {
         this.name = name;
-        this.kind = kind;
+        this.petKind = petKind;
         this.yearOfBirth = yearOfBirth;
     }
 
@@ -37,12 +36,12 @@ public class Pet {
         this.name = name;
     }
 
-    public String getKind() {
-        return kind;
+    public PetKind getKind() {
+        return petKind;
     }
 
-    public void setKind(String kind) {
-        this.kind = kind;
+    public void setKind(PetKind petKind) {
+        this.petKind = petKind;
     }
 
     public int getYearOfBirth() {
@@ -71,7 +70,7 @@ public class Pet {
         return "Pet{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", kind='" + kind + '\'' +
+                ", kind='" + petKind + '\'' +
                 ", yearOfBirth=" + yearOfBirth +
                 '}';
     }

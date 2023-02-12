@@ -2,6 +2,7 @@ package pro.sky.telegrambotshelter.service;
 
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.model.Pet;
+import pro.sky.telegrambotshelter.model.PetKind;
 import pro.sky.telegrambotshelter.repository.PetRepository;
 
 import java.util.Collection;
@@ -19,8 +20,8 @@ public class PetService {
         this.petRepository = petRepository;
     }
 
-    public Pet save(String name, String kind, int year){
-        Pet newPet = new Pet(name, kind, year);
+    public Pet save(String name, PetKind petKind, int year){
+        Pet newPet = new Pet(name, petKind, year);
         return save(newPet);
     }
 

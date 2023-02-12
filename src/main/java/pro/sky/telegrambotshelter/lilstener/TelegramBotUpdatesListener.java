@@ -170,7 +170,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 sendMessage(chatId,"Ошибка сохранения отчета. Пожалуйста обратитесь к волонтеру");
             }
         } else {
-            sendMessage(chatId,"Команда не распознана");
+            sendMessage(chatId,"Команда не распознана \uD83E\uDD37\u200D♀️");
         }
     }
 
@@ -182,7 +182,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                  фото.\n 
                 2) Текстовый отчет. Пожалуйста отправьте текстовый отчет отдельным от фото сообщением (от 1 до"""
                 + MAX_FILES + """
-                 сообщений. Отчет должен включать: 
+                  сообщений). Отчет должен включать: 
                 - Рацион животного. 
                 - Общее самочувствие и привыкание к новому месту.
                 - Изменение в поведении: отказ от старых привычек, приобретение новых.

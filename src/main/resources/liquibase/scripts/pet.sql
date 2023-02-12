@@ -10,3 +10,9 @@ CREATE TABLE pet
 )
 -- changeset egorbacheva:3
 ALTER TABLE pet add primary key (id)
+
+--changeset egorbacheva:4
+CREATE TYPE animal_kind AS ENUM
+    ('dog', 'cat', 'bird', 'rabbit', 'rat', 'other');
+ALTER TABLE pet DROP COLUMN kind;
+ALTER TABLE pet ADD COLUMN pet_kind animal_kind;
