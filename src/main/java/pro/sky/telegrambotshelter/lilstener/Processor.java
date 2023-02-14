@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public abstract class Processor {
 
@@ -28,6 +30,8 @@ public abstract class Processor {
     @Value("${cynologist.advice.url}")
     protected String cynologistAdviceUrl;
 
+    protected ResourceBundle bundle;
+
     protected final PersonService personService;
     protected final PetService petService;
     protected final AdoptionService adoptionService;
@@ -40,22 +44,22 @@ public abstract class Processor {
     protected static  final String GET_A_DOG = "/getadog";
     protected static  final String REPORT = "/report";
     protected static  final String CALL_A_VOLUNTEER = "/volunteer";
-    protected static  final String ABOUT_SHELTER = "/about";
-    protected static  final String ADDRESS = "/address";
-    protected static  final String SAFETY_MEASURES = "/safety";
+    protected static  final String TEXT_ABOUT_SHELTER = "/about";
+    protected static  final String TEXT_ADDRESS = "/address";
+    protected static  final String TEXT_SAFETY = "/safety";
     protected static  final String SAVE_CONTACTS = "/contacts";
     protected static  final String GO_BACK = "/back";
     protected static  final String GET_A_DOG_INFO = "/getadoginfo";
-    protected static  final String MEETING_DOG_INFO = "/meetingdog";
-    protected static  final String ADOPTION_DOCS ="/adoptiondocs";
-    protected static  final String ADOPTION_REFUSAL="/adoptionrefusal";
-    protected static  final String TRANSPORTATION = "/transportation";
+    protected static  final String TEXT_MEETING_A_DOG = "/meetingdog";
+    protected static  final String TEXT_ADOPTION_DOCS ="/adoptiondocs";
+    protected static  final String TEXT_ADOPTION_REFUSAL ="/adoptionrefusal";
+    protected static  final String TEXT_TRANSPORTATION = "/transportation";
     protected static  final String HOUSE_ACCOMMODATION = "/houseaccommodation";
-    protected static  final String PUPPY_HOUSE_PREPARATION = "/puppyhouse";
-    protected static  final String DOG_HOUSE_PREPARATION = "/doghouse";
-    protected static  final String DOG_HANDICAP_HOUSE_PREP="/doghandicap";
+    protected static  final String TEXT_PUPPY_HOUSE_PREPARATION = "/puppyhouse";
+    protected static  final String TEXT_DOG_HOUSE_PREPARATION = "/doghouse";
+    protected static  final String TEXT_DOG_HANDICAP_HOUSE_PREP ="/doghandicap";
     protected static  final String CYNOLOGIST_ADVICE ="/cynologadvice";
-    protected static  final String CYNOLOGIST_LIST="/cynologlist";
+    protected static  final String TEXT_CYNOLOGIST_LIST ="/cynologlist";
 
     public Processor(PersonService personService, PetService petService, AdoptionService adoptionService,
                      AdoptionReportService adoptionReportService, UserContextService userContextService) {
@@ -64,6 +68,7 @@ public abstract class Processor {
         this.adoptionReportService = adoptionReportService;
         this.adoptionService = adoptionService;
         this.userContextService = userContextService;
+        bundle = ResourceBundle.getBundle("texts", Locale.ROOT);
     }
 
     protected void sendStartMenu(long chatId){

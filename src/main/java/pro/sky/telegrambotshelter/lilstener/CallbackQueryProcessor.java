@@ -1,9 +1,13 @@
 package pro.sky.telegrambotshelter.lilstener;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.MessageEntity;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.request.SendLocation;
 import com.pengrad.telegrambot.request.SendMessage;
+import liquibase.pro.packaged.M;
 import org.springframework.stereotype.Component;
 import pro.sky.telegrambotshelter.service.*;
 
@@ -19,43 +23,80 @@ public class CallbackQueryProcessor extends Processor {
         this.telegramBot = telegramBot;
     }
 
+//    public void process(long chatId, String data) {
+//        userContextService.save(chatId, data);
+//        switch (data) {
+//            case SAVE_CONTACTS -> sendMessage(chatId, "Save contacts");
+//            case CALL_A_VOLUNTEER -> callAVolunteer(chatId);
+//            case GO_BACK -> sendStartMenu(chatId);
+//            case GET_A_DOG_INFO -> getADogInfo(chatId);
+//            case HOUSE_ACCOMMODATION -> sendHouseMenu(chatId);
+//            case CYNOLOGIST_ADVICE -> sendMessage(chatId, "Рекомендации кинолога");
+//            case TEXT_ABOUT_SHELTER -> sendMessage(chatId, "Info about our shelter");
+//            case TEXT_ADDRESS -> sendMessage(chatId, "Some address info");
+//            case TEXT_SAFETY -> sendMessage(chatId, "Some safety info");
+//            case TEXT_MEETING_A_DOG -> sendMessage(chatId, "Подготовка к первой встрече");
+//            case TEXT_ADOPTION_DOCS -> sendMessage(chatId, "Список документов для усыновления");
+//            case TEXT_ADOPTION_REFUSAL -> sendMessage(chatId, "Причины отказа в усыновлении");
+//            case TEXT_TRANSPORTATION -> sendMessage(chatId, "Рекомендации по транспортировке");
+//            case TEXT_PUPPY_HOUSE_PREPARATION -> sendMessage(chatId, "Рекомендации по подготовке дома для щенка");
+//            case TEXT_DOG_HOUSE_PREPARATION -> sendMessage(chatId, "Рекомендации по подготовке дома для взрослой собаки");
+//            case TEXT_DOG_HANDICAP_HOUSE_PREP ->
+//                    sendMessage(chatId, "Рекомендации по подготовке дома для собаки с ограниченными возможностями");
+//            case TEXT_CYNOLOGIST_LIST -> sendMessage(chatId, "Перечень проверенных кинологов");
+//        }
+//    }
+
     public void process(long chatId, String data) {
         userContextService.save(chatId, data);
         switch (data) {
-            case ABOUT_SHELTER -> sendMessage(chatId, "Info about our shelter");
-            case ADDRESS -> sendMessage(chatId, "Some address info");
-            case SAFETY_MEASURES -> sendMessage(chatId, "Some safety info");
-            case SAVE_CONTACTS -> sendMessage(chatId, "Save contacts");
-            case CALL_A_VOLUNTEER -> callAVolunteer(chatId);
-            case GO_BACK -> sendStartMenu(chatId);
-            case GET_A_DOG_INFO -> getADogInfo(chatId);
-            case MEETING_DOG_INFO -> sendMessage(chatId, "Подготовка к первой встрече");
-            case ADOPTION_DOCS -> sendMessage(chatId, "Список документов для усыновления");
-            case ADOPTION_REFUSAL -> sendMessage(chatId, "Причины отказа в усыновлении");
-            case TRANSPORTATION -> sendMessage(chatId, "Рекомендации по транспортировке");
-            case HOUSE_ACCOMMODATION -> sendHouseMenu(chatId);
-            case PUPPY_HOUSE_PREPARATION -> sendMessage(chatId, "Рекомендации по подготовке дома для щенка");
-            case DOG_HOUSE_PREPARATION -> sendMessage(chatId, "Рекомендации по подготовке дома для взрослой собаки");
-            case DOG_HANDICAP_HOUSE_PREP ->
-                    sendMessage(chatId, "Рекомендации по подготовке дома для собаки с ограниченными возможностями");
-            case CYNOLOGIST_ADVICE -> sendMessage(chatId, "Рекомендации кинолога");
-            case CYNOLOGIST_LIST -> sendMessage(chatId, "Перечень проверенных кинологов");
+            case SAVE_CONTACTS:
+                sendMessage(chatId, "Save contacts");
+                break;
+            case CALL_A_VOLUNTEER:
+                callAVolunteer(chatId);
+                break;
+            case GO_BACK:
+                sendStartMenu(chatId);
+                break;
+            case GET_A_DOG_INFO:
+                getADogInfo(chatId);
+                break;
+            case HOUSE_ACCOMMODATION:
+                sendHouseMenu(chatId);
+                break;
+            case TEXT_ADDRESS:
+                SendLocation sendLocation = new SendLocation(chatId, 51.176379f,71.335729f);
+                telegramBot.execute(sendLocation);
+            case TEXT_ABOUT_SHELTER:
+            case TEXT_SAFETY:
+            case TEXT_MEETING_A_DOG:
+            case TEXT_ADOPTION_DOCS:
+            case TEXT_ADOPTION_REFUSAL:
+            case TEXT_TRANSPORTATION:
+            case TEXT_PUPPY_HOUSE_PREPARATION:
+            case TEXT_DOG_HOUSE_PREPARATION:
+            case TEXT_DOG_HANDICAP_HOUSE_PREP :
+            case TEXT_CYNOLOGIST_LIST:{
+                String message = bundle.getString(data);
+                sendMessage(chatId, message);
+            }
         }
     }
 
     private void getADogInfo(long chatId) {
-        InlineKeyboardButton[] keyboard = {new InlineKeyboardButton("Первая встреча").callbackData(MEETING_DOG_INFO),
-                new InlineKeyboardButton("Документы").callbackData(ADOPTION_DOCS),
-                new InlineKeyboardButton("Причины отказа").callbackData(ADOPTION_REFUSAL)};
+        InlineKeyboardButton[] keyboard = {new InlineKeyboardButton("Первая встреча").callbackData(TEXT_MEETING_A_DOG),
+                new InlineKeyboardButton("Документы").callbackData(TEXT_ADOPTION_DOCS),
+                new InlineKeyboardButton("Причины отказа").callbackData(TEXT_ADOPTION_REFUSAL)};
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(keyboard);
         sendMessage(new SendMessage(chatId, "Пожалуйста, выберите что Вас интересует:").replyMarkup(inlineKeyboardMarkup));
     }
 
     private void sendHouseMenu(long chatId) {
         InlineKeyboardButton[][] keyboard = {
-                {new InlineKeyboardButton("Щенок").callbackData(PUPPY_HOUSE_PREPARATION),
-                        new InlineKeyboardButton("Взрослая собака").callbackData(DOG_HOUSE_PREPARATION)},
-                {new InlineKeyboardButton("Собака с органиченными возможностями").callbackData(DOG_HANDICAP_HOUSE_PREP)},
+                {new InlineKeyboardButton("Щенок").callbackData(TEXT_PUPPY_HOUSE_PREPARATION),
+                        new InlineKeyboardButton("Взрослая собака").callbackData(TEXT_DOG_HOUSE_PREPARATION)},
+                {new InlineKeyboardButton("Собака с органиченными возможностями").callbackData(TEXT_DOG_HANDICAP_HOUSE_PREP)},
         };
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(keyboard);
         sendMessage(new SendMessage(chatId, "Пожалуйста, выберите что Вас интересует:").replyMarkup(inlineKeyboardMarkup));

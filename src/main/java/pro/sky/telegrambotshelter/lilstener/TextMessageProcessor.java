@@ -68,20 +68,6 @@ public class TextMessageProcessor extends Processor {
      * @param chatId  telegram chat identification of the user
      * @param message text message sent from user
      */
-//    private void processUnknownRequest(long chatId, String message) {
-//        Adoption adoption = adoptionService.findByChatId(chatId);
-//        if (adoption != null) {
-//            try {
-//                saveTextReport(chatId, adoption, message);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-////                logger.error("Не удалось сохранить отчет. ChatId = " + chatId + ". Message: " + message);
-//                sendMessage(chatId, "Ошибка сохранения отчета. Пожалуйста обратитесь к волонтеру");
-//            }
-//        } else {
-//            sendMessage(chatId, "Команда не распознана \uD83E\uDD37\u200D♀️");
-//        }
-//    }
 
     private void processUnknownRequest(long chatId, String message) {
         Adoption adoption = adoptionService.findByChatId(chatId);
@@ -102,9 +88,9 @@ public class TextMessageProcessor extends Processor {
     private void sendInfoSubmenu(long chatId) {
         String path = addPersonUrl + chatId;
         InlineKeyboardButton[][] keyboard = {
-                {new InlineKeyboardButton("О приюте").callbackData(ABOUT_SHELTER),
-                        new InlineKeyboardButton("Расписание, адрес, \nсхема проезда").callbackData(ADDRESS),
-                        new InlineKeyboardButton("Правила безопасности").callbackData(SAFETY_MEASURES)},
+                {new InlineKeyboardButton("О приюте").callbackData(TEXT_ABOUT_SHELTER),
+                        new InlineKeyboardButton("Расписание, адрес, \nсхема проезда").callbackData(TEXT_ADDRESS),
+                        new InlineKeyboardButton("Правила безопасности").callbackData(TEXT_SAFETY)},
                 {new InlineKeyboardButton("Оставить контактные данные").url(path),
                         new InlineKeyboardButton("Позвать волонтера").callbackData(CALL_A_VOLUNTEER)},
                 {new InlineKeyboardButton("<< Вернуться").callbackData(GO_BACK)}
@@ -117,10 +103,10 @@ public class TextMessageProcessor extends Processor {
         String path = addPersonUrl + chatId;
         InlineKeyboardButton[][] keyboard = {
                 {new InlineKeyboardButton("Как взять собаку").callbackData(GET_A_DOG_INFO),
-                        new InlineKeyboardButton("Транспортировка").callbackData(TRANSPORTATION),
+                        new InlineKeyboardButton("Транспортировка").callbackData(TEXT_TRANSPORTATION),
                         new InlineKeyboardButton("Подготовка дома").callbackData(HOUSE_ACCOMMODATION)},
                 {new InlineKeyboardButton("Советы кинолога").url(cynologistAdviceUrl),
-                        new InlineKeyboardButton("Список кинологов").callbackData(CYNOLOGIST_LIST)},
+                        new InlineKeyboardButton("Список кинологов").callbackData(TEXT_CYNOLOGIST_LIST)},
                 {new InlineKeyboardButton("Оставить контактные данные").url(path),
                         new InlineKeyboardButton("Позвать волонтера").callbackData(CALL_A_VOLUNTEER)},
                 {new InlineKeyboardButton("<< Вернуться").callbackData(GO_BACK)}
