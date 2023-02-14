@@ -1,5 +1,5 @@
 package pro.sky.telegrambotshelter.model;
 
 public enum PetKind {
-    DOG, CAT, BIRD, RABBIT, RAT, OTHER
+    dog, cat, bird, rabbit, rat, other
 }
