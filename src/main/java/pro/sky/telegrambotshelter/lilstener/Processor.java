@@ -1,6 +1,8 @@
 package pro.sky.telegrambotshelter.lilstener;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.request.ForwardMessage;
+import com.pengrad.telegrambot.request.SendContact;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.beans.factory.annotation.Value;
 import pro.sky.telegrambotshelter.model.Adoption;
@@ -58,7 +60,6 @@ public abstract class Processor {
     protected static  final String TEXT_PUPPY_HOUSE_PREPARATION = "/puppyhouse";
     protected static  final String TEXT_DOG_HOUSE_PREPARATION = "/doghouse";
     protected static  final String TEXT_DOG_HANDICAP_HOUSE_PREP ="/doghandicap";
-    protected static  final String CYNOLOGIST_ADVICE ="/cynologadvice";
     protected static  final String TEXT_CYNOLOGIST_LIST ="/cynologlist";
 
     public Processor(PersonService personService, PetService petService, AdoptionService adoptionService,
@@ -124,6 +125,6 @@ public abstract class Processor {
     }
 
     protected void callAVolunteer(long chatId) {
-        sendMessage(chatId, "Позвать волонтера");
+        sendMessage(chatId, "Опишите ваш запрос, я отправлю его волонтеру");
     }
 }

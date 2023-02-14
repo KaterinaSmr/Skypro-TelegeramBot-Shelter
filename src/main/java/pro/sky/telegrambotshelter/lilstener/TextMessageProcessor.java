@@ -3,7 +3,9 @@ package pro.sky.telegrambotshelter.lilstener;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.request.ForwardMessage;
 import com.pengrad.telegrambot.request.SendMessage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionReport;
@@ -19,6 +21,9 @@ import java.time.LocalDate;
 @Component
 public class TextMessageProcessor extends Processor {
 
+    @Value("${volunteer.chatId}")
+    long volunteerChatId;
+
     public TextMessageProcessor(PersonService personService, AdoptionService adoptionService, PetService petService,
                                 AdoptionReportService adoptionReportService, UserContextService userContextService) {
         super(personService, petService, adoptionService, adoptionReportService, userContextService);
@@ -28,7 +33,7 @@ public class TextMessageProcessor extends Processor {
         this.telegramBot = telegramBot;
     }
 
-    public void process(long chatId, String message) {
+    public void process(long chatId, String message, int messageId) {
         switch (message) {
             case START -> {
                 sendStartMenu(chatId);
@@ -50,7 +55,7 @@ public class TextMessageProcessor extends Processor {
                 callAVolunteer(chatId);
                 userContextService.save(chatId, message);
             }
-            default -> processUnknownRequest(chatId, message);
+            default -> processUnknownRequest(chatId, message, messageId);
         }
     }
 
@@ -69,16 +74,29 @@ public class TextMessageProcessor extends Processor {
      * @param message text message sent from user
      */
 
-    private void processUnknownRequest(long chatId, String message) {
+    private void processUnknownRequest(long chatId, String message, int messageId) {
         Adoption adoption = adoptionService.findByChatId(chatId);
         String lastCommand = userContextService.getLastCommand(chatId);
-        if (adoption != null && lastCommand != null && lastCommand.equals(REPORT)) {
-            try {
-                saveTextReport(chatId, adoption, message);
-            } catch (Exception e) {
-                e.printStackTrace();
-//                logger.error("Не удалось сохранить отчет. ChatId = " + chatId + ". Message: " + message);
-                sendMessage(chatId, "Ошибка сохранения отчета. Пожалуйста обратитесь к волонтеру");
+        if (adoption != null && lastCommand != null) {
+            switch (lastCommand) {
+                case REPORT:
+                    try {
+                        saveTextReport(chatId, adoption, message);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        sendMessage(chatId, "Ошибка сохранения отчета. Пожалуйста обратитесь к волонтеру");
+                    }
+                    break;
+                case CALL_A_VOLUNTEER:
+                    System.out.println("Test forward message");
+                    try {
+                        ForwardMessage forwardMessage = new ForwardMessage(volunteerChatId, chatId, messageId);
+                        telegramBot.execute(forwardMessage);
+                        sendMessage(chatId, "Спасибо! Ваше сообщение передано волонтеру. Пожалуйста ожидайте, " +
+                                "волонтер скоро с вами свяжется");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
             }
         } else {
             sendMessage(chatId, "Команда не распознана \uD83E\uDD37\u200D♀️");

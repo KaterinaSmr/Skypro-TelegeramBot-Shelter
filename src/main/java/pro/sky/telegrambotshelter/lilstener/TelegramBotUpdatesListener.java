@@ -66,8 +66,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             } else if (update.message() != null) {
                 String message = update.message().text();
                 long chatId = update.message().chat().id();
+                int messageId = update.message().messageId();
                 if (message != null) {
-                   textMessageProcessor.process(chatId, message);
+                   textMessageProcessor.process(chatId, message, messageId);
                 } else if (update.message().photo()!=null){
                     PhotoSize[] photos = update.message().photo();
                     imageProcessor.process(chatId, photos);
