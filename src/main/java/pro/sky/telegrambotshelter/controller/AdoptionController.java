@@ -11,10 +11,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pro.sky.telegrambotshelter.model.Adoption;
-import pro.sky.telegrambotshelter.model.Person;
-import pro.sky.telegrambotshelter.model.Pet;
 import pro.sky.telegrambotshelter.service.AdoptionService;
 
+import java.time.LocalDate;
 import java.util.Collection;
 
 @RestController
@@ -59,7 +58,7 @@ public class AdoptionController {
     )
     @GetMapping(params = "petId")
     public ResponseEntity<Adoption> getByPetId(@Parameter(description = "id питомца", example = "1")
-                                                   @RequestParam Integer petId){
+                                                   @RequestParam (required = false) Integer petId){
         Adoption adoption = adoptionService.getByPetId(petId);
         if (adoption == null){
             return ResponseEntity.notFound().build();
@@ -82,7 +81,7 @@ public class AdoptionController {
     )
     @GetMapping(params = "personId")
     public ResponseEntity<Adoption> getByPersonId(@Parameter(description = "id человека", example = "1")
-                                                      @RequestParam Integer personId){
+                                                      @RequestParam (required = false) Integer personId){
         Adoption adoption = adoptionService.getByPersonId(personId);
         if (adoption == null){
             return ResponseEntity.notFound().build();
@@ -105,7 +104,7 @@ public class AdoptionController {
     )
     @GetMapping(params = "adoptionId")
     public ResponseEntity<Adoption> getById(@Parameter(description = "id записи усыновления", example = "1")
-                                                @RequestParam Integer adoptionId){
+                                                @RequestParam (required = false) Integer adoptionId){
         Adoption adoption = adoptionService.findById(adoptionId);
         if (adoption == null){
             return ResponseEntity.notFound().build();

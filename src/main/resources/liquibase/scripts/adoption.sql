@@ -15,3 +15,21 @@ CREATE TABLE adoption
 -- changeset egorbacheva:2
 ALTER TABLE adoption ADD UNIQUE (pet_id);
 ALTER TABLE adoption ADD UNIQUE (person_id);
+
+-- changeset egorbacheva:3
+CREATE TYPE adoption_status AS ENUM
+    ('ON_PROBATION', 'PROBATION_EXTENDED', 'PROBATION_SUCCESSFUL',
+'PROBATION_FAILED', 'ADOPTION_CONFIRMED', 'ADOPTION_REFUSED');
+ALTER TABLE adoption DROP COLUMN probation_finished;
+ALTER TABLE adoption DROP COLUMN adoption_confirmed;
+ALTER TABLE adoption ADD COLUMN adoption_status adoption_status;
+
+--changeset egorbacheva:4
+ALTER TYPE adoption_status ADD VALUE 'NOT STARTED' BEFORE 'ON_PROBATION';
+ALTER TABLE adoption RENAME COLUMN adoption_start_date TO probation_start_date;
+
+--changeset egorbacheva:5
+ALTER TYPE adoption_status RENAME VALUE 'NOT STARTED' TO 'NOT_STARTED'
+
+--changeset egorbacheva:6
+CREATE CAST (character varying AS adoption_status) WITH INOUT AS ASSIGNMENT ;

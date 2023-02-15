@@ -16,10 +16,11 @@ public class Adoption{
     private Person person;
     @OneToOne
     private Pet pet;
-    private LocalDate adoptionStartDate;
+    private LocalDate probationStartDate;
     private LocalDate probationEndDate;
-    private boolean probationFinished;
-    private boolean adoptionConfirmed;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "adoption_status")
+    private AdoptionStatus adoptionStatus;
 
     @JsonIgnore
     @OneToMany(mappedBy = "adoption", fetch = FetchType.LAZY)
@@ -28,13 +29,12 @@ public class Adoption{
     public Adoption() {
     }
 
-    public Adoption(Person person, Pet pet, LocalDate adoptionStartDate, LocalDate probationEndDate) {
+    public Adoption(Person person, Pet pet, LocalDate probationStartDate, LocalDate probationEndDate, AdoptionStatus adoptionStatus) {
         this.person = person;
         this.pet = pet;
-        this.adoptionStartDate = adoptionStartDate;
+        this.probationStartDate = probationStartDate;
         this.probationEndDate = probationEndDate;
-        this.probationFinished = false;
-        this.adoptionConfirmed = false;
+        this.adoptionStatus = adoptionStatus;
     }
 
     public int getId() {
@@ -57,12 +57,12 @@ public class Adoption{
         this.pet = pet;
     }
 
-    public LocalDate getAdoptionStartDate() {
-        return adoptionStartDate;
+    public LocalDate getProbationStartDate() {
+        return probationStartDate;
     }
 
-    public void setAdoptionStartDate(LocalDate adoptionStartDate) {
-        this.adoptionStartDate = adoptionStartDate;
+    public void setProbationStartDate(LocalDate adoptionStartDate) {
+        this.probationStartDate = adoptionStartDate;
     }
 
     public LocalDate getProbationEndDate() {
@@ -73,20 +73,16 @@ public class Adoption{
         this.probationEndDate = probationEndDate;
     }
 
-    public boolean isProbationFinished() {
-        return probationFinished;
+    public AdoptionStatus getAdoptionStatus() {
+        return adoptionStatus;
     }
 
-    public void setProbationFinished(boolean probationFinished) {
-        this.probationFinished = probationFinished;
+    public void setAdoptionStatus(AdoptionStatus adoptionStatus) {
+        this.adoptionStatus = adoptionStatus;
     }
 
-    public boolean isAdoptionConfirmed() {
-        return adoptionConfirmed;
-    }
-
-    public void setAdoptionConfirmed(boolean adoptionConfirmed) {
-        this.adoptionConfirmed = adoptionConfirmed;
+    public void setAdoptionReports(Collection<AdoptionReport> adoptionReports) {
+        this.adoptionReports = adoptionReports;
     }
 
     public Collection<AdoptionReport> getAdoptionReports() {

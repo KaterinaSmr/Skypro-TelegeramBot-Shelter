@@ -7,6 +7,7 @@ import pro.sky.telegrambotshelter.model.Person;
 import pro.sky.telegrambotshelter.model.Pet;
 import pro.sky.telegrambotshelter.repository.AdoptionRepository;
 
+import java.time.LocalDate;
 import java.util.Collection;
 
 /**
@@ -47,9 +48,9 @@ public class AdoptionService {
         return adoptionRepository.findByPet(pet);
     }
 
-    public Collection<Adoption> getAdoptionsWithActiveProbation(){
-        return adoptionRepository.findAllByProbationFinished(false);
-    }
+//    public Collection<Adoption> getAdoptionsWithActiveProbation(){
+//        return adoptionRepository.findAllByProbationFinished(false);
+//    }
 
     /**
      * A method to get an {@link Adoption} object for a paticular {@link Person} object from "adoption" table in db.
@@ -93,5 +94,15 @@ public class AdoptionService {
 
     public void delete(Integer id) {
         adoptionRepository.deleteById(id);
+    }
+
+    public Adoption setNewProbationEndDate(int adoptionId, LocalDate newDate) {
+        Adoption adoptionFound = findById(adoptionId);
+        System.out.println("Adoption found by id: " + adoptionFound);
+        if (adoptionFound != null) {
+            adoptionFound.setProbationEndDate(newDate);
+            System.out.println("Adoption after date update "  + adoptionFound );
+        }
+        return adoptionRepository.save(adoptionFound);
     }
 }
