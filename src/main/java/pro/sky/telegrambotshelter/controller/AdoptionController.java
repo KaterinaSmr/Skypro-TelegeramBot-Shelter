@@ -6,11 +6,13 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pro.sky.telegrambotshelter.model.Adoption;
+import pro.sky.telegrambotshelter.model.AdoptionStatus;
 import pro.sky.telegrambotshelter.service.AdoptionService;
 
 import java.time.LocalDate;
@@ -44,7 +46,7 @@ public class AdoptionController {
     }
 
     @Operation(
-            summary = "Поиск записи об усыновлении по id питомца",
+            summary = "Поиск записи об усыновлении по id",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -67,7 +69,7 @@ public class AdoptionController {
     }
 
     @Operation(
-            summary = "Поиск записи об усыновлении по id человека",
+            summary = "Поиск записи об усыновлении по id",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -90,7 +92,7 @@ public class AdoptionController {
     }
 
     @Operation(
-            summary = "Поиск записи об усыновлении по id записи",
+            summary = "Поиск записи об усыновлении по id",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -153,6 +155,44 @@ public class AdoptionController {
     }
 
     @Operation(
+            summary = "Обновление статуса усыновления",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Статус успешного обновления"
+                    )
+            }
+    )
+    @PutMapping(name = "/{adoptionId}", params = "adoptionStatus")
+    public ResponseEntity<Adoption> updateProbationStatus (@PathVariable Integer adoptionId,
+                                                           @RequestParam (required = false) AdoptionStatus adoptionStatus){
+        Adoption adoption = adoptionService.setNewStatus(adoptionId, adoptionStatus);
+        if (adoption == null){
+            ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(adoption);
+    }
+
+    @Operation(
+            summary = "Обновление статуса усыновления",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Статус успешного обновления"
+                    )
+            }
+    )
+    @PutMapping(name = "/{adoptionId}", params = "probationEndDate")
+    public ResponseEntity<Adoption> updateProbationEndDate (@PathVariable Integer adoptionId,
+                                                           @RequestParam (required = false) LocalDate newDate){
+        Adoption adoption = adoptionService.setNewProbationEndDate(adoptionId, newDate);
+        if (adoption == null){
+            ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(adoption);
+    }
+
+    @Operation(
             summary = "Удаление записи об усыновлении по id",
             responses = {
                     @ApiResponse(
@@ -167,8 +207,5 @@ public class AdoptionController {
         adoptionService.delete(id);
         return ResponseEntity.ok().build();
     }
-
-
-
 
 }

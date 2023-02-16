@@ -33,3 +33,9 @@ ALTER TYPE adoption_status RENAME VALUE 'NOT STARTED' TO 'NOT_STARTED'
 
 --changeset egorbacheva:6
 CREATE CAST (character varying AS adoption_status) WITH INOUT AS ASSIGNMENT ;
+
+--changeset egorbacheva:7
+ALTER TABLE adoption DROP COLUMN adoption_status;
+ALTER TABLE adoption ADD COLUMN adoption_status varchar;
+DROP CAST (character varying AS adoption_status);
+DROP TYPE adoption_status;

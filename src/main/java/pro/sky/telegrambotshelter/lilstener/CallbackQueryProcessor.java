@@ -19,34 +19,6 @@ public class CallbackQueryProcessor extends Processor {
         super(personService, petService, adoptionService, adoptionReportService, userContextService);
     }
 
-    public void setTelegramBot(TelegramBot telegramBot) {
-        this.telegramBot = telegramBot;
-    }
-
-//    public void process(long chatId, String data) {
-//        userContextService.save(chatId, data);
-//        switch (data) {
-//            case SAVE_CONTACTS -> sendMessage(chatId, "Save contacts");
-//            case CALL_A_VOLUNTEER -> callAVolunteer(chatId);
-//            case GO_BACK -> sendStartMenu(chatId);
-//            case GET_A_DOG_INFO -> getADogInfo(chatId);
-//            case HOUSE_ACCOMMODATION -> sendHouseMenu(chatId);
-//            case CYNOLOGIST_ADVICE -> sendMessage(chatId, "Рекомендации кинолога");
-//            case TEXT_ABOUT_SHELTER -> sendMessage(chatId, "Info about our shelter");
-//            case TEXT_ADDRESS -> sendMessage(chatId, "Some address info");
-//            case TEXT_SAFETY -> sendMessage(chatId, "Some safety info");
-//            case TEXT_MEETING_A_DOG -> sendMessage(chatId, "Подготовка к первой встрече");
-//            case TEXT_ADOPTION_DOCS -> sendMessage(chatId, "Список документов для усыновления");
-//            case TEXT_ADOPTION_REFUSAL -> sendMessage(chatId, "Причины отказа в усыновлении");
-//            case TEXT_TRANSPORTATION -> sendMessage(chatId, "Рекомендации по транспортировке");
-//            case TEXT_PUPPY_HOUSE_PREPARATION -> sendMessage(chatId, "Рекомендации по подготовке дома для щенка");
-//            case TEXT_DOG_HOUSE_PREPARATION -> sendMessage(chatId, "Рекомендации по подготовке дома для взрослой собаки");
-//            case TEXT_DOG_HANDICAP_HOUSE_PREP ->
-//                    sendMessage(chatId, "Рекомендации по подготовке дома для собаки с ограниченными возможностями");
-//            case TEXT_CYNOLOGIST_LIST -> sendMessage(chatId, "Перечень проверенных кинологов");
-//        }
-//    }
-
     public void process(long chatId, String data) {
         userContextService.save(chatId, data);
         switch (data) {

@@ -21,16 +21,9 @@ import java.time.LocalDate;
 @Component
 public class TextMessageProcessor extends Processor {
 
-    @Value("${volunteer.chatId}")
-    long volunteerChatId;
-
     public TextMessageProcessor(PersonService personService, AdoptionService adoptionService, PetService petService,
                                 AdoptionReportService adoptionReportService, UserContextService userContextService) {
         super(personService, petService, adoptionService, adoptionReportService, userContextService);
-    }
-
-    public void setTelegramBot(TelegramBot telegramBot) {
-        this.telegramBot = telegramBot;
     }
 
     public void process(long chatId, String message, int messageId) {

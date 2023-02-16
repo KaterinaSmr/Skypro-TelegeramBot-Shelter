@@ -3,12 +3,14 @@ package pro.sky.telegrambotshelter.service;
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.PersonNotFoundException;
 import pro.sky.telegrambotshelter.model.Adoption;
+import pro.sky.telegrambotshelter.model.AdoptionStatus;
 import pro.sky.telegrambotshelter.model.Person;
 import pro.sky.telegrambotshelter.model.Pet;
 import pro.sky.telegrambotshelter.repository.AdoptionRepository;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A Service class to perform CRUD operations with the "adoption" table in database.
@@ -30,6 +32,14 @@ public class AdoptionService {
         return adoptionRepository.findAll();
     }
 
+    public List<Adoption> getAllActiveAdoptions(){
+        return getAllAdoptionsByStatus(AdoptionStatus.ON_PROBATION, AdoptionStatus.PROBATION_EXTENDED);
+    }
+
+    public List<Adoption> getAllAdoptionsByStatus(AdoptionStatus ... adoptionStatuses){
+        return adoptionRepository.findAllByAdoptionStatusIn(adoptionStatuses);
+    }
+
     public Adoption findById(int id){
         return adoptionRepository.findById(id).orElse(null);
     }
@@ -48,12 +58,8 @@ public class AdoptionService {
         return adoptionRepository.findByPet(pet);
     }
 
-//    public Collection<Adoption> getAdoptionsWithActiveProbation(){
-//        return adoptionRepository.findAllByProbationFinished(false);
-//    }
-
     /**
-     * A method to get an {@link Adoption} object for a paticular {@link Person} object from "adoption" table in db.
+     * A method to get an {@link Adoption} object for a particular {@link Person} object from "adoption" table in db.
      * Uses {@link AdoptionRepository}
      * @param personId identification of a {@link Person}
      * @return {@link Adoption} object if found, null if {@link Person} with this id does not exist,
@@ -96,13 +102,34 @@ public class AdoptionService {
         adoptionRepository.deleteById(id);
     }
 
-    public Adoption setNewProbationEndDate(int adoptionId, LocalDate newDate) {
-        Adoption adoptionFound = findById(adoptionId);
-        System.out.println("Adoption found by id: " + adoptionFound);
-        if (adoptionFound != null) {
-            adoptionFound.setProbationEndDate(newDate);
-            System.out.println("Adoption after date update "  + adoptionFound );
+    public Adoption setNewStatus(int adoptionId, AdoptionStatus adoptionStatus){
+        Adoption adoption = findById(adoptionId);
+        if (adoption!=null){
+            adoption = setNewStatus(adoption, adoptionStatus);
         }
-        return adoptionRepository.save(adoptionFound);
+        return adoption;
+    }
+
+    public Adoption setNewStatus(Adoption adoption, AdoptionStatus adoptionStatus){
+        if (adoption != null){
+            adoption.setAdoptionStatus(adoptionStatus);
+            adoptionRepository.save(adoption);
+        }
+        return adoption;
+    }
+
+    public Adoption setNewProbationEndDate(int adoptionId, LocalDate newDate) {
+        Adoption adoption = findById(adoptionId);
+        if (adoption != null) {
+            adoption = setNewProbationEndDate(adoption, newDate);
+        }
+        return adoption;
+    }
+    public Adoption setNewProbationEndDate(Adoption adoption, LocalDate newDate) {
+        if (adoption != null) {
+            adoption.setProbationEndDate(newDate);
+            adoptionRepository.save(adoption);
+        }
+        return adoption;
     }
 }

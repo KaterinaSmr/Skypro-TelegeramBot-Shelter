@@ -31,6 +31,8 @@ public abstract class Processor {
     protected String addPersonUrl;
     @Value("${cynologist.advice.url}")
     protected String cynologistAdviceUrl;
+    @Value("${volunteer.chatId}")
+    protected long volunteerChatId;
 
     protected ResourceBundle bundle;
 
@@ -72,6 +74,9 @@ public abstract class Processor {
         bundle = ResourceBundle.getBundle("texts", Locale.ROOT);
     }
 
+    public void setTelegramBot(TelegramBot telegramBot) {
+        this.telegramBot = telegramBot;
+    }
     protected void sendStartMenu(long chatId){
         String responseMessage ="Привет! Что Вы хотите сделать?\n" +
                 INFO + " - Получить информацию о приюте\n" +

@@ -26,10 +26,6 @@ public class ImageProcessor extends Processor {
         super(personService, petService, adoptionService, adoptionReportService, userContextService);
     }
 
-    public void setTelegramBot(TelegramBot telegramBot) {
-        this.telegramBot = telegramBot;
-    }
-
     public void process(long chatId, PhotoSize[] photos) {
         String lastCommand = userContextService.getLastCommand(chatId);
         if (lastCommand != null && lastCommand.equals(REPORT)) {

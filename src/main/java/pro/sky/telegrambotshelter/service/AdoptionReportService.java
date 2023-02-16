@@ -1,5 +1,6 @@
 package pro.sky.telegrambotshelter.service;
 
+import org.hibernate.type.LocaleType;
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionReport;
@@ -46,6 +47,9 @@ public class AdoptionReportService {
     public Collection<AdoptionReport> findAllByAdoptionAndReportDate(Integer adoptionId, String date){
         LocalDate reportDate = LocalDate.parse(date, formatter);
         Adoption adoption = adoptionService.findById(adoptionId);
+        return findAllByAdoptionAndReportDate(adoption, reportDate);
+    }
+    public Collection<AdoptionReport> findAllByAdoptionAndReportDate(Adoption adoption, LocalDate reportDate){
         return adoptionReportRepository.findAllByAdoptionAndReportDate(adoption, reportDate);
     }
 
@@ -57,6 +61,13 @@ public class AdoptionReportService {
         LocalDate fromDate = LocalDate.parse(from, formatter);
         LocalDate toDate = LocalDate.parse(to, formatter);
         return adoptionReportRepository.findAllByReportDateBetween(fromDate, toDate);
+    }
+
+    public Collection<AdoptionReport> findAllByDateBetween(LocalDate from, LocalDate to){
+        if (from == null || to == null || from.isAfter(to)){
+            return null;
+        }
+        return adoptionReportRepository.findAllByReportDateBetween(from, to);
     }
 
     public Optional<AdoptionReport> findById(Integer id) {
