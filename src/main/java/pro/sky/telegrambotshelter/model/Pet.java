@@ -11,16 +11,16 @@ public class Pet {
 
     private String name;
     @Enumerated(EnumType.STRING)
-    @Column(name = "pet_kind")
-    private PetKind petKind;
+    @Column(name = "pet_type")
+    private PetType petType;
     private int yearOfBirth;
 
     public Pet() {
     }
 
-    public Pet(String name, PetKind petKind, int yearOfBirth) {
+    public Pet(String name, PetType petType, int yearOfBirth) {
         this.name = name;
-        this.petKind = petKind;
+        this.petType = petType;
         this.yearOfBirth = yearOfBirth;
     }
 
@@ -36,12 +36,12 @@ public class Pet {
         this.name = name;
     }
 
-    public PetKind getKind() {
-        return petKind;
+    public PetType getKind() {
+        return petType;
     }
 
-    public void setKind(PetKind petKind) {
-        this.petKind = petKind;
+    public void setKind(PetType petType) {
+        this.petType = petType;
     }
 
     public int getYearOfBirth() {
@@ -70,7 +70,7 @@ public class Pet {
         return "Pet{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", kind='" + petKind + '\'' +
+                ", kind='" + petType + '\'' +
                 ", yearOfBirth=" + yearOfBirth +
                 '}';
     }

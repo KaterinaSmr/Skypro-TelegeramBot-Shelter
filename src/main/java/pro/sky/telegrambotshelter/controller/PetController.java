@@ -10,8 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pro.sky.telegrambotshelter.model.AdoptionReport;
 import pro.sky.telegrambotshelter.model.Pet;
+import pro.sky.telegrambotshelter.model.PetType;
 import pro.sky.telegrambotshelter.service.PetService;
 
 import java.util.Collection;
@@ -40,7 +40,7 @@ public class PetController {
     )
     @GetMapping
     public Collection<Pet> allPets(){
-        return petService.getAll();
+        return petService.findAll();
     }
 
     @Operation(
@@ -58,7 +58,7 @@ public class PetController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<Pet> getPet(@Parameter(description = "id питомца", example = "1") @PathVariable Integer id){
-        Pet pet = petService.get(id);
+        Pet pet = petService.findById(id);
         if (pet == null){
             return ResponseEntity.notFound().build();
         }
@@ -116,6 +116,4 @@ public class PetController {
         petService.delete(id);
         return ResponseEntity.ok().build();
     }
-
-
 }

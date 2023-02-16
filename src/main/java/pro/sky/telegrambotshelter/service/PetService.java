@@ -1,8 +1,10 @@
 package pro.sky.telegrambotshelter.service;
 
 import org.springframework.stereotype.Service;
+import pro.sky.telegrambotshelter.model.Person;
 import pro.sky.telegrambotshelter.model.Pet;
-import pro.sky.telegrambotshelter.model.PetKind;
+import pro.sky.telegrambotshelter.model.PetType;
+import pro.sky.telegrambotshelter.repository.PersonRepository;
 import pro.sky.telegrambotshelter.repository.PetRepository;
 
 import java.util.Collection;
@@ -20,8 +22,8 @@ public class PetService {
         this.petRepository = petRepository;
     }
 
-    public Pet save(String name, PetKind petKind, int year){
-        Pet newPet = new Pet(name, petKind, year);
+    public Pet save(String name, PetType petType, int year){
+        Pet newPet = new Pet(name, petType, year);
         return save(newPet);
     }
 
@@ -29,22 +31,26 @@ public class PetService {
         return petRepository.save(pet);
     }
 
-    public Pet get(int id){
+    public Pet findById(int id){
         return petRepository.findById(id).orElse(null);
     }
 
-    public Collection<Pet> getAll(){
+    public Collection<Pet> findAll(){
         return petRepository.findAll();
     }
 
     public Pet edit(Pet pet) {
-        Pet petFound = get(pet.getId());
+        Pet petFound = findById(pet.getId());
         if (petFound == null){
             return null;
         }
         return petRepository.save(pet);
     }
 
+    /**
+     * Removes a record from the "pet" table with this id. Uses {@link PetRepository}
+     * @param id identification of a {@link Pet} to be removed from db table "pet"
+     */
     public void delete(Integer id) {
         petRepository.deleteById(id);
     }

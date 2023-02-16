@@ -4,6 +4,8 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.response.GetFileResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionReport;
@@ -18,14 +20,28 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
 
+/**
+ * This class is for processing images received from users.
+ * @author Ekaterina Gorbacheva
+ */
 @Component
 public class ImageProcessor extends Processor {
+
+    private final Logger logger = LoggerFactory.getLogger(ImageProcessor.class);
 
     public ImageProcessor(PersonService personService, AdoptionService adoptionService, PetService petService,
                           AdoptionReportService adoptionReportService, UserContextService userContextService) {
         super(personService, petService, adoptionService, adoptionReportService, userContextService);
     }
 
+    /**
+     *This method checks the last command sent by user. The image received from user is interpreted as daily
+     * photo report only if the last command sent from user was a request to send daily report, otherwise, the
+     * image is ignored. <br>
+     * The last command is determind with the method {@link UserContextService#getLastCommand(long)} <br>
+     * @param chatId telegram chat Id
+     * @param photos the array of photo metadata received from {@link TelegramBotUpdatesListener}
+     */
     public void process(long chatId, PhotoSize[] photos) {
         String lastCommand = userContextService.getLastCommand(chatId);
         if (lastCommand != null && lastCommand.equals(REPORT)) {
@@ -33,14 +49,14 @@ public class ImageProcessor extends Processor {
                 savePhotoReport(photos, chatId);
             } catch (Exception e) {
                 e.printStackTrace();
-//                        logger.error("Не удалось сохранить фото. ChatId = " + chatId);
+                logger.error("Не удалось сохранить фото. ChatId = " + chatId);
                 sendMessage(chatId, "Ошибка сохранения отчета. Пожалуйста обратитесь к волонтеру");
             }
         }
     }
 
     /**
-     * This method threats all incoming images from user as daily report.
+     * This method saves daily photo reports from adoptive people on probation.
      * If the user is not identified as active person with adopted animal on probation, then the photo is ignored,
      * and user is informed about this.
      * This method downloads the photo from telegram server and saves it locally to the
@@ -69,12 +85,13 @@ public class ImageProcessor extends Processor {
         com.pengrad.telegrambot.model.File file = getFileResponse.file();
 
         String fullPath = telegramBot.getFullFilePath(file);
-//        logger.info("Downloading file: " + fullPath);
+        logger.info("Downloading file: " + fullPath);
 
         int adoptionId = adoption.getId();
         String extension = getExtensionUtil(file.filePath());
         Path newFilePath = getFilePathUtil(adoptionId, extension);
         if (newFilePath == null) {
+            logger.error("Error saving file for adoption: " + adoption.getId());
             sendMessage(chatId, "Не удалось сохранить фото в отчет. Превышено количество фото за " + LocalDate.now()
                     + ". Пожалуйста обратитесь к волонтеру");
             return;
@@ -87,7 +104,7 @@ public class ImageProcessor extends Processor {
         ) {
             in.transferTo(out);
         }
-//        logger.info("File downloaded to: " + newFilePath);
+        logger.info("File downloaded to: " + newFilePath);
         String contentType = Files.probeContentType(newFilePath);
         AdoptionReport adoptionReport = new AdoptionReport(adoption, newFilePath.toString(),
                 contentType, LocalDate.now());

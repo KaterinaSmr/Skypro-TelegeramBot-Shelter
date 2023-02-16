@@ -4,7 +4,9 @@ import org.hibernate.type.LocaleType;
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionReport;
+import pro.sky.telegrambotshelter.model.Person;
 import pro.sky.telegrambotshelter.repository.AdoptionReportRepository;
+import pro.sky.telegrambotshelter.repository.PersonRepository;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,14 +76,25 @@ public class AdoptionReportService {
         return adoptionReportRepository.findById(id);
     }
 
-    public AdoptionReport delete(Integer id, Boolean removeFile) {
+    /**
+     * Removes a record from the "adoption_report" table with this id. Uses {@link AdoptionReportRepository}
+     * @param id identification of a {@link AdoptionReport} to be removed from db table "adoption_report
+     * @param removeFile flag for whether to remove the report file represented by this record in table or not
+     *                   true - to remove the file, false - to retain the file
+     */
+    public AdoptionReport delete(Integer id, boolean removeFile) {
         AdoptionReport adoptionReport = adoptionReportRepository.findById(id).orElse(null);
         if (adoptionReport == null){
             return null;
         }
         if (removeFile){
-            File file = new File(adoptionReport.getFilePath());
-            file.delete();
+            try {
+                File file = new File(adoptionReport.getFilePath());
+                file.delete();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
         }
         adoptionReportRepository.deleteById(id);
         return adoptionReport;

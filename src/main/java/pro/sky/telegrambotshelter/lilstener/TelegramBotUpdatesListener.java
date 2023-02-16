@@ -13,6 +13,11 @@ import pro.sky.telegrambotshelter.service.*;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
+/**
+ * This class listens to updates in telegram and redirects them to the right message processor
+ * depending on the incoming message type
+ * @author Ekaterina Gorbacheva
+ */
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
 

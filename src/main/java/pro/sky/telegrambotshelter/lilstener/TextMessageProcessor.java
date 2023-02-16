@@ -1,11 +1,11 @@
 package pro.sky.telegrambotshelter.lilstener;
 
-import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.ForwardMessage;
 import com.pengrad.telegrambot.request.SendMessage;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionReport;
@@ -21,47 +21,91 @@ import java.time.LocalDate;
 @Component
 public class TextMessageProcessor extends Processor {
 
+    private final Logger logger = LoggerFactory.getLogger(TextMessageProcessor.class);
+
     public TextMessageProcessor(PersonService personService, AdoptionService adoptionService, PetService petService,
                                 AdoptionReportService adoptionReportService, UserContextService userContextService) {
         super(personService, petService, adoptionService, adoptionReportService, userContextService);
     }
 
     public void process(long chatId, String message, int messageId) {
-        switch (message) {
-            case START -> {
-                sendStartMenu(chatId);
-                userContextService.save(chatId, message);
+        if (chatId == volunteerChatId) {
+            switch (message) {
+                case SEND_WARNING -> {
+                    userContextService.save(chatId, SEND_WARNING);
+                    sendMessage(chatId, "Пожалуйста введите adoption id, по которому необходимо отправить" +
+                            " уведомление о недостаточной частоте и детальности отчетов");
+                }
+                default -> processVolunteerRequest(chatId, message);
             }
-            case INFO -> {
-                sendInfoSubmenu(chatId);
-                userContextService.save(chatId, message);
+        } else {
+            switch (message) {
+                case START -> {
+                    sendStartMenu(chatId);
+                    userContextService.save(chatId, message);
+                }
+                case INFO -> {
+                    sendInfoSubmenu(chatId);
+                    userContextService.save(chatId, message);
+                }
+                case REPORT -> {
+                    sendReportInfo(chatId);
+                    userContextService.save(chatId, message);
+                }
+                case GET_A_DOG -> {
+                    sendGetADogSubmenu(chatId);
+                    userContextService.save(chatId, message);
+                }
+                case CALL_A_VOLUNTEER -> {
+                    callAVolunteer(chatId);
+                    userContextService.save(chatId, message);
+                }
+                default -> processUnknownRequest(chatId, message, messageId);
             }
-            case REPORT -> {
-                sendReportInfo(chatId);
-                userContextService.save(chatId, message);
-            }
-            case GET_A_DOG -> {
-                sendGetADogSubmenu(chatId);
-                userContextService.save(chatId, message);
-            }
-            case CALL_A_VOLUNTEER -> {
-                callAVolunteer(chatId);
-                userContextService.save(chatId, message);
-            }
-            default -> processUnknownRequest(chatId, message, messageId);
         }
     }
 
+    /**
+     * This method is for processing messages from volunteers. Volunteer is defined by the specific chat Id difined
+     * in application.properties file.<br>
+     * This method sends a warning notification to an adoptive parent with bad daily report history.
+     * First, it checks if the last command sent by volunteer was the request to send such a notification.
+     * This is checked by the {@link UserContextService#getLastCommand(long)} method. If the last command is
+     * not correct, then no actions taken<br>
+     * If the last command is correct, Then it waits for an adoption Id for whom it concerns, and then performs
+     * sending of a warning notification itself
+     */
+    private void processVolunteerRequest(long chatId, String message) {
+        String lastCommand = userContextService.getLastCommand(chatId);
+        if (chatId == volunteerChatId && lastCommand != null && lastCommand.equals(SEND_WARNING)) {
+            try {
+                int adoptionId = Integer.parseInt(message);
+                Adoption adoption = adoptionService.findById(adoptionId);
+                if (adoption == null) {
+                    sendMessage(chatId, "Не найдена запись об усыновлении с adoption id = " + adoptionId +
+                            ". Пожалуйста введите корректный номер id записи об усыновлении. ");
+                    return;
+                }
+                sendMessage(adoption.getPerson().getChatId(), bundle.getString(SEND_WARNING));
+                userContextService.save(chatId, "");
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+                sendMessage(chatId, "Некорректный формат. Пожалуйста пришлите целочисленное значение adoption Id.");
+            }
+        }
+    }
 
     /**
-     * This method treats unknown messages from registered users with active adoptions as probation daily report messages.
-     * The text message content is saved as '.txt' file with the
-     * {@link TextMessageProcessor#saveTextReport(long, Adoption, String)} method.
-     * Files are saved in the {@link TextMessageProcessor#reportsPath}, where they can later be accessed
-     * to be reviewed.
+     * This method processes unknown messages from users.
+     * The method checks for the last command sent by user with the {@link UserContextService#getLastCommand(long)}
+     * method, and acts accordingly <br>
+     * 1) if the last user command was a request to send daily report, then this message is saved as daily report by the
+     * {@link TextMessageProcessor#saveTextReport} method.
      * The chatId is the key to identify whether the user has active probation adoptions or not with the use of
-     * {@link AdoptionService#findByChatId(long)} method.
-     * Messages from users without active probation will be ignored.
+     * {@link AdoptionService#findByChatId(long)} method. Messages from users without active probation will be ignored.
+     * <br>
+     * 2) if the last command was to call a volunteer, then this message is forwarded to a volunteer.
+     * 3) no action is taken in other cases
      *
      * @param chatId  telegram chat identification of the user
      * @param message text message sent from user
@@ -70,14 +114,17 @@ public class TextMessageProcessor extends Processor {
     private void processUnknownRequest(long chatId, String message, int messageId) {
         Adoption adoption = adoptionService.findByChatId(chatId);
         String lastCommand = userContextService.getLastCommand(chatId);
-        if (adoption != null && lastCommand != null) {
+        if (lastCommand != null) {
             switch (lastCommand) {
                 case REPORT:
-                    try {
-                        saveTextReport(chatId, adoption, message);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        sendMessage(chatId, "Ошибка сохранения отчета. Пожалуйста обратитесь к волонтеру");
+                    if (adoption != null) {
+                        try {
+                            saveTextReport(chatId, adoption, message);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            logger.error("Error saving text report for adoption id: " + adoption.getId());
+                            sendMessage(chatId, "Ошибка сохранения отчета. Пожалуйста обратитесь к волонтеру");
+                        }
                     }
                     break;
                 case CALL_A_VOLUNTEER:
@@ -88,6 +135,7 @@ public class TextMessageProcessor extends Processor {
                         sendMessage(chatId, "Спасибо! Ваше сообщение передано волонтеру. Пожалуйста ожидайте, " +
                                 "волонтер скоро с вами свяжется");
                     } catch (Exception e) {
+                        logger.error("Error forwarding request for volunteer from user with chat id " + chatId);
                         e.printStackTrace();
                     }
             }
@@ -167,7 +215,7 @@ public class TextMessageProcessor extends Processor {
         ) {
             bOut.write(message);
         }
-//        logger.info("Saved report file " + newFilePath);
+        logger.info("Saved report file " + newFilePath);
         String contentType = Files.probeContentType(newFilePath);
         AdoptionReport adoptionReport = new AdoptionReport(adoption, newFilePath.toString(),
                 contentType, LocalDate.now());

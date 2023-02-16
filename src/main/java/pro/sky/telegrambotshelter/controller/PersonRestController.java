@@ -11,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pro.sky.telegrambotshelter.model.Person;
-import pro.sky.telegrambotshelter.model.Pet;
 import pro.sky.telegrambotshelter.service.PersonService;
 
 import java.util.Collection;
@@ -40,7 +39,7 @@ public class PersonRestController {
     )
     @GetMapping
     public Collection<Person> allPeople(){
-        return personService.getAll();
+        return personService.findAll();
     }
 
     @Operation(
@@ -59,17 +58,12 @@ public class PersonRestController {
     @GetMapping("/{id}")
     public ResponseEntity<Person> getPerson(@Parameter(description = "id пользователя", example = "1")
                                                 @PathVariable Integer id){
-        Person person = personService.get(id);
+        Person person = personService.findById(id);
         if (person == null){
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(person);
     }
-
-//    @PostMapping
-//    public Person addPerson(@RequestBody Person person){
-//        return personService.save(person);
-//    }
 
     @Operation(
             summary = "Редактирование информации о пользователе",

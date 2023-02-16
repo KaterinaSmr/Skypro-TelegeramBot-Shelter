@@ -1,16 +1,16 @@
 package pro.sky.telegrambotshelter.lilstener;
 
-import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.model.MessageEntity;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendLocation;
 import com.pengrad.telegrambot.request.SendMessage;
-import liquibase.pro.packaged.M;
 import org.springframework.stereotype.Component;
 import pro.sky.telegrambotshelter.service.*;
 
+/**
+ * This class is for processing Callback queries from users.
+ * @author Ekaterina Gorbacheva
+ */
 @Component
 public class CallbackQueryProcessor extends Processor {
 

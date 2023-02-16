@@ -4,6 +4,10 @@ import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.model.UserContext;
 import pro.sky.telegrambotshelter.repository.UserContextRepository;
 
+/**
+ * A Service class to perform CRUD operations with the "user_context" table in database.
+ * @author Ekaterina Gorbacheva
+ */
 @Service
 public class UserContextService {
 

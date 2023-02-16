@@ -1,8 +1,6 @@
 package pro.sky.telegrambotshelter.lilstener;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.request.ForwardMessage;
-import com.pengrad.telegrambot.request.SendContact;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.beans.factory.annotation.Value;
 import pro.sky.telegrambotshelter.model.Adoption;
@@ -16,6 +14,11 @@ import java.time.LocalDate;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+/**
+ * This abstract class is a parent for different type telegram message processors.
+ * It contains common constants, fields and methods, such as message sending methods, or util methods
+ * @author Ekaterina Gorbacheva
+ */
 public abstract class Processor {
 
     /**
@@ -45,24 +48,25 @@ public abstract class Processor {
 
     protected static final String START = "/start";
     protected static final String INFO = "/info";
-    protected static  final String GET_A_DOG = "/getadog";
-    protected static  final String REPORT = "/report";
-    protected static  final String CALL_A_VOLUNTEER = "/volunteer";
-    protected static  final String TEXT_ABOUT_SHELTER = "/about";
-    protected static  final String TEXT_ADDRESS = "/address";
-    protected static  final String TEXT_SAFETY = "/safety";
-    protected static  final String SAVE_CONTACTS = "/contacts";
-    protected static  final String GO_BACK = "/back";
-    protected static  final String GET_A_DOG_INFO = "/getadoginfo";
-    protected static  final String TEXT_MEETING_A_DOG = "/meetingdog";
-    protected static  final String TEXT_ADOPTION_DOCS ="/adoptiondocs";
-    protected static  final String TEXT_ADOPTION_REFUSAL ="/adoptionrefusal";
-    protected static  final String TEXT_TRANSPORTATION = "/transportation";
-    protected static  final String HOUSE_ACCOMMODATION = "/houseaccommodation";
-    protected static  final String TEXT_PUPPY_HOUSE_PREPARATION = "/puppyhouse";
-    protected static  final String TEXT_DOG_HOUSE_PREPARATION = "/doghouse";
-    protected static  final String TEXT_DOG_HANDICAP_HOUSE_PREP ="/doghandicap";
-    protected static  final String TEXT_CYNOLOGIST_LIST ="/cynologlist";
+    protected static final String GET_A_DOG = "/getadog";
+    protected static final String REPORT = "/report";
+    protected static final String CALL_A_VOLUNTEER = "/volunteer";
+    protected static final String TEXT_ABOUT_SHELTER = "/about";
+    protected static final String TEXT_ADDRESS = "/address";
+    protected static final String TEXT_SAFETY = "/safety";
+    protected static final String SAVE_CONTACTS = "/contacts";
+    protected static final String GO_BACK = "/back";
+    protected static final String GET_A_DOG_INFO = "/getadoginfo";
+    protected static final String TEXT_MEETING_A_DOG = "/meetingdog";
+    protected static final String TEXT_ADOPTION_DOCS ="/adoptiondocs";
+    protected static final String TEXT_ADOPTION_REFUSAL ="/adoptionrefusal";
+    protected static final String TEXT_TRANSPORTATION = "/transportation";
+    protected static final String HOUSE_ACCOMMODATION = "/houseaccommodation";
+    protected static final String TEXT_PUPPY_HOUSE_PREPARATION = "/puppyhouse";
+    protected static final String TEXT_DOG_HOUSE_PREPARATION = "/doghouse";
+    protected static final String TEXT_DOG_HANDICAP_HOUSE_PREP ="/doghandicap";
+    protected static final String TEXT_CYNOLOGIST_LIST ="/cynologlist";
+    protected static final String SEND_WARNING="/warning";
 
     public Processor(PersonService personService, PetService petService, AdoptionService adoptionService,
                      AdoptionReportService adoptionReportService, UserContextService userContextService) {

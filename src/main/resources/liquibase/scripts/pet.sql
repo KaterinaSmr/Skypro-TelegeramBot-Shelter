@@ -27,3 +27,9 @@ ALTER TYPE animal_kind RENAME VALUE 'other' TO 'OTHER';
 
 -- changeset egorbacheva:6
 CREATE CAST (character varying AS animal_kind) WITH INOUT AS ASSIGNMENT ;
+
+-- changeset egorbacheva:7
+ALTER TABLE pet DROP COLUMN pet_kind;
+DROP CAST (character varying AS animal_kind);
+DROP TYPE animal_kind;
+ALTER TABLE pet ADD COLUMN pet_type varchar;

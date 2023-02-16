@@ -49,7 +49,7 @@ public class PersonService {
      * @param personId identification of a person to be found
      * @return Person object with the id specified, or {@code null}. if not found
      */
-    public Person get(Integer personId) {
+    public Person findById(int personId) {
         return personRepository.findById(personId).orElse(null);
     }
 
@@ -57,7 +57,7 @@ public class PersonService {
      * A method to get all records from the db table "person". Uses {@link PersonRepository}
      * @return {@link Collection} of all {@link Person} objects saved in db table "person"
      */
-    public Collection<Person> getAll() {
+    public Collection<Person> findAll() {
         return personRepository.findAll();
     }
 
@@ -69,7 +69,7 @@ public class PersonService {
      * @throws org.hibernate.exception.ConstraintViolationException in case of duplicated chatId
      */
     public Person edit(Person person) {
-        Person personFound = get(person.getId());
+        Person personFound = findById(person.getId());
         if (personFound == null){
             return null;
         }

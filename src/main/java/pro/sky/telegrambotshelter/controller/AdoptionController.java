@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -61,7 +60,7 @@ public class AdoptionController {
     @GetMapping(params = "petId")
     public ResponseEntity<Adoption> getByPetId(@Parameter(description = "id питомца", example = "1")
                                                    @RequestParam (required = false) Integer petId){
-        Adoption adoption = adoptionService.getByPetId(petId);
+        Adoption adoption = adoptionService.findByPetId(petId);
         if (adoption == null){
             return ResponseEntity.notFound().build();
         }
@@ -84,7 +83,7 @@ public class AdoptionController {
     @GetMapping(params = "personId")
     public ResponseEntity<Adoption> getByPersonId(@Parameter(description = "id человека", example = "1")
                                                       @RequestParam (required = false) Integer personId){
-        Adoption adoption = adoptionService.getByPersonId(personId);
+        Adoption adoption = adoptionService.findByPersonId(personId);
         if (adoption == null){
             return ResponseEntity.notFound().build();
         }
