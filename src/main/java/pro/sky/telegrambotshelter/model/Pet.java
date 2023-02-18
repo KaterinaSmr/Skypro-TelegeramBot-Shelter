@@ -24,6 +24,18 @@ public class Pet {
         this.yearOfBirth = yearOfBirth;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public PetType getPetType() {
+        return petType;
+    }
+
+    public void setPetType(PetType petType) {
+        this.petType = petType;
+    }
+
     public int getId() {
         return id;
     }

@@ -128,7 +128,6 @@ public class TextMessageProcessor extends Processor {
                     }
                     break;
                 case CALL_A_VOLUNTEER:
-                    System.out.println("Test forward message");
                     try {
                         ForwardMessage forwardMessage = new ForwardMessage(volunteerChatId, chatId, messageId);
                         telegramBot.execute(forwardMessage);

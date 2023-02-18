@@ -1,15 +1,11 @@
 package pro.sky.telegrambotshelter.service;
 
-import org.hibernate.type.LocaleType;
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionReport;
-import pro.sky.telegrambotshelter.model.Person;
 import pro.sky.telegrambotshelter.repository.AdoptionReportRepository;
-import pro.sky.telegrambotshelter.repository.PersonRepository;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
@@ -25,9 +21,9 @@ public class AdoptionReportService {
     private final AdoptionService adoptionService;
     private final DateTimeFormatter formatter;
 
-    public AdoptionReportService(AdoptionReportRepository adoptionReportRepository, AdoptionService adoptionService, AdoptionService adoptionService1) {
+    public AdoptionReportService(AdoptionReportRepository adoptionReportRepository, AdoptionService adoptionService) {
         this.adoptionReportRepository = adoptionReportRepository;
-        this.adoptionService = adoptionService1;
+        this.adoptionService = adoptionService;
         formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
     }
 

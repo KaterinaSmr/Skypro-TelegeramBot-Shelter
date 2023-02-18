@@ -1,10 +1,8 @@
 package pro.sky.telegrambotshelter.service;
 
 import org.springframework.stereotype.Service;
-import pro.sky.telegrambotshelter.model.Person;
 import pro.sky.telegrambotshelter.model.Pet;
 import pro.sky.telegrambotshelter.model.PetType;
-import pro.sky.telegrambotshelter.repository.PersonRepository;
 import pro.sky.telegrambotshelter.repository.PetRepository;
 
 import java.util.Collection;

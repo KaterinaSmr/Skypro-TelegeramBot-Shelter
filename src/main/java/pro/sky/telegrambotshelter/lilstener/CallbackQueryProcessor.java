@@ -4,6 +4,8 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendLocation;
 import com.pengrad.telegrambot.request.SendMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pro.sky.telegrambotshelter.service.*;
 
@@ -14,6 +16,7 @@ import pro.sky.telegrambotshelter.service.*;
 @Component
 public class CallbackQueryProcessor extends Processor {
 
+    private final Logger logger = LoggerFactory.getLogger(CallbackQueryProcessor.class);
     public CallbackQueryProcessor(PersonService personService, AdoptionService adoptionService, PetService petService,
                                   AdoptionReportService adoptionReportService, UserContextService userContextService) {
         super(personService, petService, adoptionService, adoptionReportService, userContextService);
@@ -39,7 +42,12 @@ public class CallbackQueryProcessor extends Processor {
                 break;
             case TEXT_ADDRESS:
                 SendLocation sendLocation = new SendLocation(chatId, 51.176379f,71.335729f);
-                telegramBot.execute(sendLocation);
+                try {
+                    telegramBot.execute(sendLocation);
+                } catch (Exception e) {
+                    logger.error("Unable to send location to :" + chatId);
+                    e.printStackTrace();
+                }
             case TEXT_ABOUT_SHELTER:
             case TEXT_SAFETY:
             case TEXT_MEETING_A_DOG:

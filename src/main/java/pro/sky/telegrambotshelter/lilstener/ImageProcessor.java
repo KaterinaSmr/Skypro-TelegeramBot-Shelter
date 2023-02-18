@@ -1,6 +1,5 @@
 package pro.sky.telegrambotshelter.lilstener;
 
-import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.response.GetFileResponse;

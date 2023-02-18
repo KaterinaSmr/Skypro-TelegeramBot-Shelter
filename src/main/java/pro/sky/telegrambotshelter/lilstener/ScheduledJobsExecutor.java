@@ -48,7 +48,7 @@ public class ScheduledJobsExecutor extends Processor {
      * with the current date value in the {@code report_date} table
      */
     @Scheduled (cron = "0 0 12 * * *")
-    public void dailyReportReminded(){
+    public void dailyReportReminder(){
         logger.info("Sending daily report reminders");
         List<Adoption> activeAdoptions = adoptionService.getAllActiveProbations();
         //sending reminder to those who hasn't sent text report

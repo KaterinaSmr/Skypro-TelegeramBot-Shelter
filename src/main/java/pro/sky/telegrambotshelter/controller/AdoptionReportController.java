@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/adoption_reports")
+@RequestMapping("/adoption_report")
 public class AdoptionReportController {
     private final AdoptionReportService adoptionReportService;
 

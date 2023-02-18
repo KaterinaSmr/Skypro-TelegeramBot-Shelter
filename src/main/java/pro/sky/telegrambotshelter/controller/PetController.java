@@ -11,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pro.sky.telegrambotshelter.model.Pet;
-import pro.sky.telegrambotshelter.model.PetType;
 import pro.sky.telegrambotshelter.service.PetService;
 
 import java.util.Collection;

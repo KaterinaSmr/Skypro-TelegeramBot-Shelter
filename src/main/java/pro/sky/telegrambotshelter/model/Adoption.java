@@ -41,6 +41,10 @@ public class Adoption{
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public Person getPerson() {
         return person;
     }

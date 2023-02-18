@@ -31,6 +31,10 @@ public class AdoptionReport {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public Adoption getAdoption() {
         return adoption;
     }

@@ -103,9 +103,8 @@ public class AdoptionController {
                     )
             }
     )
-    @GetMapping(params = "adoptionId")
-    public ResponseEntity<Adoption> getById(@Parameter(description = "id записи усыновления", example = "1")
-                                                @RequestParam (required = false) Integer adoptionId){
+    @GetMapping("/{adoptionId}")
+    public ResponseEntity<Adoption> getById(@PathVariable Integer adoptionId){
         Adoption adoption = adoptionService.findById(adoptionId);
         if (adoption == null){
             return ResponseEntity.notFound().build();
