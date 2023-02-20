@@ -50,7 +50,7 @@ class PetControllerTests {
     @SpyBean
     private AdoptionService adoptionService;
     @SpyBean
-    private AdoptionReportService adoptionReportService;
+    private AdoptionReportServiceTest adoptionReportService;
     @SpyBean
     private UserContextService userContextService;
 
@@ -109,7 +109,7 @@ class PetControllerTests {
 
     @Test
     public void allPetsTest() throws Exception {
-        when(petRepository.findAll()).thenReturn(new ArrayList<Pet>(List.of(pet)));
+        when(petRepository.findAll()).thenReturn(new ArrayList<>(List.of(pet)));
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/pet")

@@ -49,7 +49,7 @@ class AdoptionControllerTests {
     @SpyBean
     private AdoptionService adoptionService;
     @SpyBean
-    private AdoptionReportService adoptionReportService;
+    private AdoptionReportServiceTest adoptionReportService;
     @SpyBean
     private UserContextService userContextService;
 
@@ -172,7 +172,7 @@ class AdoptionControllerTests {
 
     @Test
     public void allAdoptionsTest() throws Exception {
-        when(adoptionRepository.findAll()).thenReturn(new ArrayList<Adoption>(List.of(adoption)));
+        when(adoptionRepository.findAll()).thenReturn(new ArrayList<>(List.of(adoption)));
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/adoption")

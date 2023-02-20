@@ -49,7 +49,7 @@ class PersonRestControllerTests {
     @SpyBean
     private AdoptionService adoptionService;
     @SpyBean
-    private AdoptionReportService adoptionReportService;
+    private AdoptionReportServiceTest adoptionReportService;
     @SpyBean
     private UserContextService userContextService;
 
@@ -93,7 +93,7 @@ class PersonRestControllerTests {
 
 	@Test
 	public  void allPetsTest() throws Exception{
-		when(personRepository.findAll()).thenReturn(new ArrayList<Person>(List.of(person)));
+		when(personRepository.findAll()).thenReturn(new ArrayList<>(List.of(person)));
 
 		mockMvc.perform(MockMvcRequestBuilders
 					.get("/person")

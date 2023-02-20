@@ -98,8 +98,9 @@ public class AdoptionService {
      * @see PetService
      */
     public Adoption save(Adoption adoption){
-        if (findByPersonId(adoption.getPerson().getId()) != null || findByPetId(adoption.getPet().getId()) != null)
+        if (findByPersonId(adoption.getPerson().getId()) != null || findByPetId(adoption.getPet().getId()) != null) {
             return null;
+        }
         return adoptionRepository.save(adoption);
     }
 

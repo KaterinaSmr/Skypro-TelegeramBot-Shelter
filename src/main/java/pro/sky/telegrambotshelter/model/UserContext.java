@@ -9,8 +9,6 @@ import java.util.Objects;
 @Entity
 public class UserContext {
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private int id;
     private long chatId;
     private String lastCommand;
 
@@ -21,14 +19,6 @@ public class UserContext {
         this.chatId = chatId;
         this.lastCommand = lastCommand;
     }
-
-//    public int getId() {
-//        return id;
-//    }
-//
-//    public void setId(int id) {
-//        this.id = id;
-//    }
 
     public long getChatId() {
         return chatId;
@@ -51,20 +41,17 @@ public class UserContext {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserContext that = (UserContext) o;
-//        return id == that.id && chatId == that.chatId;
         return chatId == that.chatId;
     }
 
     @Override
     public int hashCode() {
-//        return Objects.hash(id, chatId);
         return Objects.hash(chatId);
     }
 
     @Override
     public String toString() {
         return "UserContext{" +
-//                "id=" + id +
                 ", chatId=" + chatId +
                 ", lastCommand='" + lastCommand + '\'' +
                 '}';

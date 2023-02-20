@@ -99,10 +99,14 @@ public class AdoptionReportController {
             }
     )
     @GetMapping(params = {"adoptionId", "date"})
-    public Collection<AdoptionReport> getReportsByAdoptionIdAndDate(
+    public ResponseEntity<Collection<AdoptionReport>> getReportsByAdoptionIdAndDate(
             @RequestParam(name = "adoptionId", required = false) Integer adoptionId,
-            @RequestParam(name = "date", required = false) String date){
-        return adoptionReportService.findAllByAdoptionAndReportDate(adoptionId, date);
+            @RequestParam(name = "date", required = false) String date) {
+        Collection<AdoptionReport> reports = adoptionReportService.findAllByAdoptionAndReportDate(adoptionId, date);
+        if (reports == null){
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().body(reports);
     }
 
 

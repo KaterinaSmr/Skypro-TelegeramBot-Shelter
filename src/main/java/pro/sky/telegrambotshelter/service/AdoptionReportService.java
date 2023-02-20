@@ -48,11 +48,14 @@ public class AdoptionReportService {
         return findAllByAdoptionAndReportDate(adoption, reportDate);
     }
     public Collection<AdoptionReport> findAllByAdoptionAndReportDate(Adoption adoption, LocalDate reportDate){
+        if (adoption == null){
+            return null;
+        }
         return adoptionReportRepository.findAllByAdoptionAndReportDate(adoption, reportDate);
     }
 
-    public void save(AdoptionReport adoptionReport) {
-        adoptionReportRepository.save(adoptionReport);
+    public AdoptionReport save(AdoptionReport adoptionReport) {
+        return adoptionReportRepository.save(adoptionReport);
     }
 
     public Collection<AdoptionReport> findAllByDateBetween(String from, String to) {

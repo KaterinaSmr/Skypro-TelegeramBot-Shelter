@@ -49,7 +49,7 @@ class AdoptionReportControllerTests {
     @SpyBean
     private AdoptionService adoptionService;
     @SpyBean
-    private AdoptionReportService adoptionReportService;
+    private AdoptionReportServiceTest adoptionReportService;
     @SpyBean
     private UserContextService userContextService;
 

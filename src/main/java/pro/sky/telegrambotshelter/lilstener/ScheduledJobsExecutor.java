@@ -13,6 +13,7 @@ import pro.sky.telegrambotshelter.model.Person;
 import pro.sky.telegrambotshelter.service.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,9 +58,11 @@ public class ScheduledJobsExecutor extends Processor {
                         .noneMatch(adoptionReport -> adoptionReport.getMediaType().equals(MediaType.TEXT_PLAIN.toString())))
                 .forEach(adoption -> sendMessage(adoption.getPerson().getChatId(), bundle.getString(DAILY_TEXT_REPORT_REMINDER)));
         //sending reminder to those who hasn't sent photo report
+        Set<String> photoMediaTypes = new HashSet<>(Set.of(MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE,
+                MediaType.IMAGE_PNG_VALUE));
         activeAdoptions.stream()
                 .filter(a -> adoptionReportService.findAllByAdoptionAndReportDate(a, LocalDate.now()).stream()
-                        .noneMatch(adoptionReport -> adoptionReport.getMediaType().equals(MediaType.IMAGE_JPEG_VALUE)))
+                        .noneMatch(adoptionReport -> photoMediaTypes.contains(adoptionReport.getMediaType())))
                 .forEach(adoption -> sendMessage(adoption.getPerson().getChatId(), bundle.getString(DAILY_PHOTO_REPORT_REMINDER)));
     }
 
