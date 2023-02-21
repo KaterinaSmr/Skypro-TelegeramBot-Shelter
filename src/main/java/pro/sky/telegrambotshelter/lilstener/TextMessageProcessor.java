@@ -4,11 +4,13 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.ForwardMessage;
 import com.pengrad.telegrambot.request.SendMessage;
+import liquibase.pro.packaged.M;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionReport;
+import pro.sky.telegrambotshelter.model.PetType;
 import pro.sky.telegrambotshelter.service.*;
 
 import java.io.BufferedWriter;
@@ -41,7 +43,8 @@ public class TextMessageProcessor extends Processor {
         } else {
             switch (message) {
                 case START -> {
-                    sendStartMenu(chatId);
+//                    sendStartMenu(chatId);
+                    requestShelterType(chatId, message);
                     userContextService.save(chatId, message);
                 }
                 case INFO -> {
@@ -52,7 +55,7 @@ public class TextMessageProcessor extends Processor {
                     sendReportInfo(chatId);
                     userContextService.save(chatId, message);
                 }
-                case GET_A_DOG -> {
+                case GET_A_PET -> {
                     sendGetADogSubmenu(chatId);
                     userContextService.save(chatId, message);
                 }
@@ -63,6 +66,13 @@ public class TextMessageProcessor extends Processor {
                 default -> processUnknownRequest(chatId, message, messageId);
             }
         }
+    }
+
+    private void requestShelterType(long chatId, String message){
+        InlineKeyboardButton[]keyboard = {new InlineKeyboardButton("Собаки").callbackData(DOG),
+                        new InlineKeyboardButton("Кошки").callbackData(CAT)};
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(keyboard);
+        sendMessage(new SendMessage(chatId, bundle.getString(message)).replyMarkup(inlineKeyboardMarkup));
     }
 
     /**
@@ -147,7 +157,8 @@ public class TextMessageProcessor extends Processor {
         String path = addPersonUrl + chatId;
         InlineKeyboardButton[][] keyboard = {
                 {new InlineKeyboardButton("О приюте").callbackData(TEXT_ABOUT_SHELTER),
-                        new InlineKeyboardButton("Расписание, адрес, \nсхема проезда").callbackData(TEXT_ADDRESS),
+                        new InlineKeyboardButton("Расписание, адрес, \nсхема проезда").callbackData(TEXT_ADDRESS)},
+                {new InlineKeyboardButton("Заказать пропуск").callbackData(ORDER_PASS),
                         new InlineKeyboardButton("Правила безопасности").callbackData(TEXT_SAFETY)},
                 {new InlineKeyboardButton("Оставить контактные данные").url(path),
                         new InlineKeyboardButton("Позвать волонтера").callbackData(CALL_A_VOLUNTEER)},
@@ -158,38 +169,35 @@ public class TextMessageProcessor extends Processor {
     }
 
     private void sendGetADogSubmenu(long chatId) {
+        PetType petType = userContextService.getPetType(chatId);
         String path = addPersonUrl + chatId;
+
+        InlineKeyboardButton[] additionalButtonForDogs = {new InlineKeyboardButton("Советы кинолога").url(cynologistAdviceUrl),
+                new InlineKeyboardButton("Список кинологов").callbackData(TEXT_CYNOLOGIST_LIST)};
+        if (petType == PetType.CAT){
+            additionalButtonForDogs = new InlineKeyboardButton[]{};
+        }
         InlineKeyboardButton[][] keyboard = {
-                {new InlineKeyboardButton("Как взять собаку").callbackData(GET_A_DOG_INFO),
+                {new InlineKeyboardButton("Как взять питомца").callbackData(GET_A_PET_INFO),
                         new InlineKeyboardButton("Транспортировка").callbackData(TEXT_TRANSPORTATION),
                         new InlineKeyboardButton("Подготовка дома").callbackData(HOUSE_ACCOMMODATION)},
-                {new InlineKeyboardButton("Советы кинолога").url(cynologistAdviceUrl),
-                        new InlineKeyboardButton("Список кинологов").callbackData(TEXT_CYNOLOGIST_LIST)},
+                additionalButtonForDogs,
                 {new InlineKeyboardButton("Оставить контактные данные").url(path),
                         new InlineKeyboardButton("Позвать волонтера").callbackData(CALL_A_VOLUNTEER)},
                 {new InlineKeyboardButton("<< Вернуться").callbackData(GO_BACK)}
         };
+
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(keyboard);
         sendMessage(new SendMessage(chatId, "Пожалуйста, выберите что Вас интересует:").replyMarkup(inlineKeyboardMarkup));
     }
 
     private void sendReportInfo(long chatId) {
-        sendMessage(chatId, """
-                Ежедневный отчет должен включать:\n 
-                1) Фото животного. Пожалуйста отправьте от 1 до """
-                + MAX_FILES + """
-                 фото.\n 
-                2) Текстовый отчет. Пожалуйста отправьте текстовый отчет отдельным от фото сообщением (от 1 до"""
-                + MAX_FILES + """
-                  сообщений). Отчет должен включать: 
-                - Рацион животного. 
-                - Общее самочувствие и привыкание к новому месту.
-                - Изменение в поведении: отказ от старых привычек, приобретение новых.
-                """);
+        String message = String.format(bundle.getString(REPORT), MAX_FILES, MAX_FILES);
+        sendMessage(chatId, message);
     }
 
     /**
-     * This method saves messages from users as dayily reports.
+     * This method saves messages from users as daily reports.
      * Files are saved in the {@link TextMessageProcessor#reportsPath}, under the directory with relevant date
      * and adoptionId from {@link Adoption} where they can later be accessed to be reviewed.
      * The limit is {@value MAX_FILES} messages a day. If the amount is exceeded, the users receives a notification to

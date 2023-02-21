@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.beans.factory.annotation.Value;
 import pro.sky.telegrambotshelter.model.Adoption;
+import pro.sky.telegrambotshelter.model.PetType;
 import pro.sky.telegrambotshelter.service.*;
 
 import java.io.File;
@@ -37,6 +38,8 @@ public abstract class Processor {
     @Value("${volunteer.chatId}")
     protected long volunteerChatId;
 
+    private ResourceBundle catBundle;
+    private ResourceBundle dogBundle;
     protected ResourceBundle bundle;
 
     protected final PersonService personService;
@@ -46,25 +49,27 @@ public abstract class Processor {
     protected final UserContextService userContextService;
     protected TelegramBot telegramBot;
 
+    protected static final String DOG = "DOG";
+    protected static final String CAT = "CAT";
     protected static final String START = "/start";
     protected static final String INFO = "/info";
-    protected static final String GET_A_DOG = "/getadog";
+    protected static final String GET_A_PET = "/getapet";
     protected static final String REPORT = "/report";
     protected static final String CALL_A_VOLUNTEER = "/volunteer";
     protected static final String TEXT_ABOUT_SHELTER = "/about";
     protected static final String TEXT_ADDRESS = "/address";
     protected static final String TEXT_SAFETY = "/safety";
-    protected static final String SAVE_CONTACTS = "/contacts";
+    protected static final String ORDER_PASS = "/orderpass";
     protected static final String GO_BACK = "/back";
-    protected static final String GET_A_DOG_INFO = "/getadoginfo";
-    protected static final String TEXT_MEETING_A_DOG = "/meetingdog";
+    protected static final String GET_A_PET_INFO = "/getapetinfo";
+    protected static final String TEXT_MEETING_A_PET = "/meetingpet";
     protected static final String TEXT_ADOPTION_DOCS ="/adoptiondocs";
     protected static final String TEXT_ADOPTION_REFUSAL ="/adoptionrefusal";
     protected static final String TEXT_TRANSPORTATION = "/transportation";
     protected static final String HOUSE_ACCOMMODATION = "/houseaccommodation";
-    protected static final String TEXT_PUPPY_HOUSE_PREPARATION = "/puppyhouse";
-    protected static final String TEXT_DOG_HOUSE_PREPARATION = "/doghouse";
-    protected static final String TEXT_DOG_HANDICAP_HOUSE_PREP ="/doghandicap";
+    protected static final String TEXT_CUB_HOUSE_PREPARATION = "/cubhouse";
+    protected static final String TEXT_ADULT_HOUSE_PREPARATION = "/adulthouse";
+    protected static final String TEXT_HANDICAP_HOUSE_PREP ="/handicap";
     protected static final String TEXT_CYNOLOGIST_LIST ="/cynologlist";
     protected static final String SEND_WARNING="/warning";
 
@@ -75,7 +80,18 @@ public abstract class Processor {
         this.adoptionReportService = adoptionReportService;
         this.adoptionService = adoptionService;
         this.userContextService = userContextService;
-        bundle = ResourceBundle.getBundle("texts", Locale.ROOT);
+        dogBundle = ResourceBundle.getBundle("texts_dog");
+        catBundle = ResourceBundle.getBundle("texts_cat");
+        bundle = ResourceBundle.getBundle("texts_common");
+    }
+    
+    public String getText(String key, PetType petType){
+        if (petType == PetType.CAT){
+            return catBundle.getString(key);
+        } else if (petType == PetType.DOG){
+            return dogBundle.getString(key);
+        }
+        return null;
     }
 
     public void setTelegramBot(TelegramBot telegramBot) {
@@ -84,7 +100,7 @@ public abstract class Processor {
     protected void sendStartMenu(long chatId){
         String responseMessage ="Привет! Что Вы хотите сделать?\n" +
                 INFO + " - Получить информацию о приюте\n" +
-                GET_A_DOG + " - Как взять собаку из приюта\n" +
+                GET_A_PET + " - Как взять собаку из приюта\n" +
                 REPORT + " - Прислать отчет о питомце\n" +
                 CALL_A_VOLUNTEER + " - Позвать волонтера";
         sendMessage(chatId, responseMessage);

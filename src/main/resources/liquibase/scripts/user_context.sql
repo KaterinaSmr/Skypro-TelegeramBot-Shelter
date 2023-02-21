@@ -10,3 +10,6 @@ CREATE TABLE user_context(
 -- changeset egorbacheva:2
 ALTER TABLE user_context ADD PRIMARY KEY (chat_id);
 ALTER TABLE user_context DROP COLUMN id;
+
+-- changeset egorbacheva:3
+ALTER TABLE user_context ADD COLUMN pet_type varchar;

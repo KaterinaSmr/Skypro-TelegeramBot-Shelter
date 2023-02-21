@@ -1,9 +1,6 @@
 package pro.sky.telegrambotshelter.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
@@ -11,6 +8,9 @@ public class UserContext {
     @Id
     private long chatId;
     private String lastCommand;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "pet_type")
+    private PetType petType;
 
     public UserContext() {
     }
@@ -18,6 +18,13 @@ public class UserContext {
     public UserContext(long chatId, String lastCommand) {
         this.chatId = chatId;
         this.lastCommand = lastCommand;
+        this.petType = petType;
+    }
+
+    public UserContext(long chatId, String lastCommand, PetType petType) {
+        this.chatId = chatId;
+        this.lastCommand = lastCommand;
+        this.petType = petType;
     }
 
     public long getChatId() {
@@ -34,6 +41,14 @@ public class UserContext {
 
     public void setLastCommand(String lastCommand) {
         this.lastCommand = lastCommand;
+    }
+
+    public PetType getPetType() {
+        return petType;
+    }
+
+    public void setPetType(PetType petType) {
+        this.petType = petType;
     }
 
     @Override
