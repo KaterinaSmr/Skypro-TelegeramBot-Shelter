@@ -4,15 +4,15 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
 
-@Entity
-public class AdoptionReport {
+@MappedSuperclass
+public class AdoptionReport<S extends Adoption<T>, T extends Person> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @ManyToOne()
     @JoinColumn(name = "adoption_id")
-    private Adoption adoption;
+    private S adoption;
     private String filePath;
     private String mediaType;
     private LocalDate reportDate;
@@ -20,7 +20,7 @@ public class AdoptionReport {
     public AdoptionReport() {
     }
 
-    public AdoptionReport(Adoption adoption, String filePath, String mediaType, LocalDate date) {
+    public AdoptionReport(S adoption, String filePath, String mediaType, LocalDate date) {
         this.adoption = adoption;
         this.filePath = filePath;
         this.mediaType = mediaType;
@@ -35,11 +35,11 @@ public class AdoptionReport {
         this.id = id;
     }
 
-    public Adoption getAdoption() {
+    public S getAdoption() {
         return adoption;
     }
 
-    public void setAdoption(Adoption adoption) {
+    public void setAdoption(S adoption) {
         this.adoption = adoption;
     }
 

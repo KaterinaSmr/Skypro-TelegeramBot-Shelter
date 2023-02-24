@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.telegrambotshelter.PersonNotFoundException;
 import pro.sky.telegrambotshelter.model.*;
 import pro.sky.telegrambotshelter.repository.AdoptionRepository;
-import pro.sky.telegrambotshelter.repository.PersonRepository;
+import pro.sky.telegrambotshelter.repository.PersonDogRepository;
 import pro.sky.telegrambotshelter.repository.PetRepository;
 
 import java.time.LocalDate;
@@ -27,7 +27,7 @@ public class AdoptionServiceTest {
     @Mock
     private AdoptionRepository adoptionRepository;
     @Mock
-    private PersonRepository personRepository;
+    private PersonDogRepository personDogRepository;
     @Mock
     private PetRepository petRepository;
 
@@ -72,11 +72,11 @@ public class AdoptionServiceTest {
 
     @Test
     public void findByChatIdTest() {
-        when(personRepository.findByChatId(person.getChatId())).thenReturn(Optional.of(person));
+        when(personDogRepository.findByChatId(person.getChatId())).thenReturn(Optional.of(person));
         when(adoptionRepository.findByPerson(any(Person.class))).thenReturn(adoption);
         assertEquals(adoption, adoptionService.findByChatId(person.getChatId()));
 
-        when(personRepository.findByChatId(person.getChatId())).thenReturn(Optional.empty());
+        when(personDogRepository.findByChatId(person.getChatId())).thenReturn(Optional.empty());
         assertThrows(PersonNotFoundException.class, () -> adoptionService.findByChatId(person.getChatId()));
     }
 
@@ -92,27 +92,27 @@ public class AdoptionServiceTest {
 
     @Test
     public void findByPersonIdTest() {
-        when(personRepository.findById(anyInt())).thenReturn(Optional.of(person));
+        when(personDogRepository.findById(anyInt())).thenReturn(Optional.of(person));
         when(adoptionRepository.findByPerson(any(Person.class))).thenReturn(adoption);
         assertEquals(adoption, adoptionService.findByPersonId(person.getId()));
 
-        when(personRepository.findById(person.getId())).thenReturn(Optional.empty());
+        when(personDogRepository.findById(person.getId())).thenReturn(Optional.empty());
         assertNull(adoptionService.findByPersonId(person.getId()));
     }
 
     @Test
     public void saveTest() {
-        when(personRepository.findById(person.getId())).thenReturn(Optional.empty());
+        when(personDogRepository.findById(person.getId())).thenReturn(Optional.empty());
         when(petRepository.findById(pet.getId())).thenReturn(Optional.empty());
         when(adoptionRepository.save(any(Adoption.class))).thenReturn(adoption);
         assertEquals(adoption, adoptionService.save(adoption));
 
         person.setId(2);
-        when(personRepository.findById(person.getId())).thenReturn(Optional.of(person));
+        when(personDogRepository.findById(person.getId())).thenReturn(Optional.of(person));
         when(adoptionRepository.findByPerson(any(Person.class))).thenReturn(adoption);
         assertNull(adoptionService.save(adoption));
 
-        when(personRepository.findById(anyInt())).thenReturn(Optional.empty());
+        when(personDogRepository.findById(anyInt())).thenReturn(Optional.empty());
         when(petRepository.findById(pet.getId())).thenReturn(Optional.of(pet));
         when(adoptionRepository.findByPet(any(Pet.class))).thenReturn(adoption);
         assertNull(adoptionService.save(adoption));

@@ -18,10 +18,13 @@ import pro.sky.telegrambotshelter.service.*;
 @Component
 public class CallbackQueryProcessor extends Processor {
 
-    private final Logger logger = LoggerFactory.getLogger(CallbackQueryProcessor.class);
-    public CallbackQueryProcessor(PersonService personService, AdoptionService adoptionService, PetService petService,
-                                  AdoptionReportService adoptionReportService, UserContextService userContextService) {
-        super(personService, petService, adoptionService, adoptionReportService, userContextService);
+    public CallbackQueryProcessor(PersonDogService personDogService, PersonCatService personCatService,
+                                  AdoptionDogService adoptionDogService, AdoptionCatService adoptionCatService,
+                                  AdoptionReportDogService adoptionReportDogService, AdoptionReportCatService adoptionReportCatService,
+                                  PetService petService, UserContextService userContextService) {
+        super(personDogService, personCatService, adoptionDogService, adoptionCatService,
+                adoptionReportDogService, adoptionReportCatService, petService, userContextService);
+        logger = LoggerFactory.getLogger(CallbackQueryProcessor.class);
     }
 
     public void process(long chatId, String data) {
@@ -31,7 +34,7 @@ public class CallbackQueryProcessor extends Processor {
             case DOG:
             case CAT:
                 userContextService.save(chatId, data, PetType.valueOf(data));
-                sendStartMenu(chatId);
+                processShelterSelection(chatId);
                 break;
             case CALL_A_VOLUNTEER:
                 callAVolunteer(chatId);
@@ -61,6 +64,16 @@ public class CallbackQueryProcessor extends Processor {
                 String message = getText(data, petType);
                 sendMessage(chatId, message);
             }
+        }
+    }
+
+    private void processShelterSelection(long chatId) {
+        if (chatId == volunteerChatId) {
+            sendMessage(chatId, "Пожалуйста введите adoption id, по которому необходимо отправить" +
+                    " уведомление о недостаточной частоте и детальности отчетов");
+            userContextService.save(chatId, SEND_WARNING);
+        } else {
+            sendStartMenu(chatId);
         }
     }
 

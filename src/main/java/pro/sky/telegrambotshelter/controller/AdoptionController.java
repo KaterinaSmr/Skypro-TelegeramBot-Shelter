@@ -12,19 +12,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionStatus;
+import pro.sky.telegrambotshelter.model.Person;
 import pro.sky.telegrambotshelter.service.AdoptionService;
 
 import java.time.LocalDate;
 import java.util.Collection;
 
-@RestController
-@RequestMapping("/adoption")
-public class AdoptionController {
-    private final AdoptionService adoptionService;
-
-    public AdoptionController(AdoptionService adoptionService) {
-        this.adoptionService = adoptionService;
-    }
+public class AdoptionController <S extends Adoption<T>, T extends Person>  {
+    AdoptionService<S,T> adoptionService;
 
     @Operation(
             summary = "Все записи об усыновлении",
@@ -40,7 +35,7 @@ public class AdoptionController {
             }
     )
     @GetMapping
-    public Collection<Adoption> allAdoptions(){
+    public Collection<S> allAdoptions(){
         return adoptionService.getAllAdoptions();
     }
 
@@ -58,9 +53,9 @@ public class AdoptionController {
             }
     )
     @GetMapping(params = "petId")
-    public ResponseEntity<Adoption> getByPetId(@Parameter(description = "id питомца", example = "1")
+    public ResponseEntity<S> getByPetId(@Parameter(description = "id питомца", example = "1")
                                                    @RequestParam (required = false) Integer petId){
-        Adoption adoption = adoptionService.findByPetId(petId);
+        S adoption = adoptionService.findByPetId(petId);
         if (adoption == null){
             return ResponseEntity.notFound().build();
         }
@@ -81,9 +76,9 @@ public class AdoptionController {
             }
     )
     @GetMapping(params = "personId")
-    public ResponseEntity<Adoption> getByPersonId(@Parameter(description = "id человека", example = "1")
+    public ResponseEntity<S> getByPersonId(@Parameter(description = "id человека", example = "1")
                                                       @RequestParam (required = false) Integer personId){
-        Adoption adoption = adoptionService.findByPersonId(personId);
+        S adoption = adoptionService.findByPersonId(personId);
         if (adoption == null){
             return ResponseEntity.notFound().build();
         }
@@ -104,8 +99,8 @@ public class AdoptionController {
             }
     )
     @GetMapping("/{adoptionId}")
-    public ResponseEntity<Adoption> getById(@PathVariable Integer adoptionId){
-        Adoption adoption = adoptionService.findById(adoptionId);
+    public ResponseEntity<S> getById(@PathVariable Integer adoptionId){
+        S adoption = adoptionService.findById(adoptionId);
         if (adoption == null){
             return ResponseEntity.notFound().build();
         }
@@ -124,8 +119,8 @@ public class AdoptionController {
             )
     )
     @PostMapping
-    public ResponseEntity<Adoption> addAdoption(@RequestBody Adoption adoption){
-        Adoption adoptionSaved = adoptionService.save(adoption);
+    public ResponseEntity<S> addAdoption(@RequestBody S adoption){
+        S adoptionSaved = adoptionService.save(adoption);
         if (adoptionSaved == null){
             return ResponseEntity.badRequest().build();
         }
@@ -143,9 +138,9 @@ public class AdoptionController {
                     )
             )
     )
-    @PutMapping()
-    public ResponseEntity<Adoption> editAdoption(@RequestBody Adoption adoption){
-        Adoption adoptionFound = adoptionService.edit(adoption);
+    @PutMapping("/edit")
+    public ResponseEntity<S> editAdoption(@RequestBody S adoption){
+        S adoptionFound = adoptionService.edit(adoption);
         if (adoptionFound == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -161,10 +156,10 @@ public class AdoptionController {
                     )
             }
     )
-    @PutMapping(name = "/{adoptionId}", params = "adoptionStatus")
-    public ResponseEntity<Adoption> updateProbationStatus (@PathVariable Integer adoptionId,
-                                                           @RequestParam (required = false) AdoptionStatus adoptionStatus){
-        Adoption adoption = adoptionService.setNewStatus(adoptionId, adoptionStatus);
+    @PutMapping(params = {"adoptionId", "adoptionStatus"})
+    public ResponseEntity<S> updateProbationStatus (@RequestParam Integer adoptionId,
+                                                    @RequestParam (required = false) AdoptionStatus adoptionStatus){
+        S adoption = adoptionService.setNewStatus(adoptionId, adoptionStatus);
         if (adoption == null){
             ResponseEntity.notFound().build();
         }
@@ -180,10 +175,11 @@ public class AdoptionController {
                     )
             }
     )
-    @PutMapping(name = "/{adoptionId}", params = "probationEndDate")
-    public ResponseEntity<Adoption> updateProbationEndDate (@PathVariable Integer adoptionId,
-                                                           @RequestParam (required = false) LocalDate newDate){
-        Adoption adoption = adoptionService.setNewProbationEndDate(adoptionId, newDate);
+    @PutMapping(params = {"adoptionId", "probationEndDate"})
+    public ResponseEntity<S> updateProbationEndDate (
+            @RequestParam Integer adoptionId,
+            @RequestParam (required = false) String probationEndDate){
+        S adoption = adoptionService.setNewProbationEndDate(adoptionId, probationEndDate);
         if (adoption == null){
             ResponseEntity.notFound().build();
         }

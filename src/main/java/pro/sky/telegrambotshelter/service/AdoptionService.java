@@ -1,6 +1,5 @@
 package pro.sky.telegrambotshelter.service;
 
-import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.PersonNotFoundException;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionStatus;
@@ -9,6 +8,7 @@ import pro.sky.telegrambotshelter.model.Pet;
 import pro.sky.telegrambotshelter.repository.AdoptionRepository;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,19 +16,22 @@ import java.util.List;
  * A Service class to perform CRUD operations with the "adoption" table in database.
  * @author Ekaterina Gorbacheva
  */
-@Service
-public class AdoptionService {
-    private final AdoptionRepository adoptionRepository;
-    private final PersonService personService;
-    private final PetService petService;
 
-    public AdoptionService(AdoptionRepository adoptionRepository, PersonService personService, PetService petService) {
+public abstract class AdoptionService <S extends Adoption<T>, T extends Person> {
+    private final AdoptionRepository<S, T> adoptionRepository;
+    private final PersonService<T> personService;
+    private final PetService petService;
+    private final DateTimeFormatter formatter;
+
+    protected AdoptionService(AdoptionRepository<S, T> adoptionRepository, PersonService<T> personService,
+                              PetService petService) {
         this.adoptionRepository = adoptionRepository;
         this.personService = personService;
         this.petService = petService;
+        formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
     }
 
-    public Collection<Adoption> getAllAdoptions(){
+    public Collection<S> getAllAdoptions(){
         return adoptionRepository.findAll();
     }
 
@@ -40,7 +43,7 @@ public class AdoptionService {
      * Uses {@link AdoptionRepository}.
      * @return {@link List} of {@link Adoption} objects
      */
-    public List<Adoption> getAllActiveProbations(){
+    public List<S> getAllActiveProbations(){
         return getAllAdoptionsByStatus(AdoptionStatus.ON_PROBATION, AdoptionStatus.PROBATION_EXTENDED);
     }
 
@@ -49,21 +52,21 @@ public class AdoptionService {
      * @param adoptionStatuses - array of {@link AdoptionStatus} to be included in selection
      * @return {@link List} of {@link Adoption} objects
      */
-    public List<Adoption> getAllAdoptionsByStatus(AdoptionStatus ... adoptionStatuses){
+    public List<S> getAllAdoptionsByStatus(AdoptionStatus ... adoptionStatuses){
         return adoptionRepository.findAllByAdoptionStatusIn(adoptionStatuses);
     }
 
-    public Adoption findById(int id){
+    public S findById(int id){
         return adoptionRepository.findById(id).orElse(null);
     }
 
-    public Adoption findByChatId(long chatId){
-        Person person = personService.findPersonByChatId(chatId)
+    public S findByChatId(long chatId){
+        T person = personService.findPersonByChatId(chatId)
                 .orElseThrow(PersonNotFoundException::new);
         return adoptionRepository.findByPerson(person);
     }
 
-    public Adoption findByPetId(int petId) {
+    public S findByPetId(int petId) {
         Pet pet = petService.findById(petId);
         if (pet == null) {
             return null;
@@ -79,8 +82,8 @@ public class AdoptionService {
      * or {@link Adoption} record for this person is not found
      * @see PersonService
      */
-    public Adoption findByPersonId(int personId) {
-        Person person = personService.findById(personId);
+    public S findByPersonId(int personId) {
+        T person = personService.findById(personId);
         if (person == null) {
             return null;
         }
@@ -97,15 +100,15 @@ public class AdoptionService {
      * @see PersonService
      * @see PetService
      */
-    public Adoption save(Adoption adoption){
+    public S save(S adoption){
         if (findByPersonId(adoption.getPerson().getId()) != null || findByPetId(adoption.getPet().getId()) != null) {
             return null;
         }
         return adoptionRepository.save(adoption);
     }
 
-    public Adoption edit(Adoption adoption) {
-        Adoption adoptionFound = findById(adoption.getId());
+    public S edit(S adoption) {
+        S adoptionFound = findById(adoption.getId());
         if (adoptionFound == null){
             return null;
         }
@@ -120,12 +123,12 @@ public class AdoptionService {
         adoptionRepository.deleteById(id);
     }
 
-    public Adoption setNewStatus(int adoptionId, AdoptionStatus adoptionStatus){
-        Adoption adoption = findById(adoptionId);
+    public S setNewStatus(int adoptionId, AdoptionStatus adoptionStatus){
+        S adoption = findById(adoptionId);
         return setNewStatus(adoption, adoptionStatus);
     }
 
-    public Adoption setNewStatus(Adoption adoption, AdoptionStatus adoptionStatus){
+    public S setNewStatus(S adoption, AdoptionStatus adoptionStatus){
         if (adoption != null){
             adoption.setAdoptionStatus(adoptionStatus);
             adoptionRepository.save(adoption);
@@ -133,11 +136,12 @@ public class AdoptionService {
         return adoption;
     }
 
-    public Adoption setNewProbationEndDate(int adoptionId, LocalDate newDate) {
-        Adoption adoption = findById(adoptionId);
-        return setNewProbationEndDate(adoption, newDate);
+    public S setNewProbationEndDate(int adoptionId, String newDate) {
+        S adoption = findById(adoptionId);
+        LocalDate reportDate = LocalDate.parse(newDate, formatter);
+        return setNewProbationEndDate(adoption, reportDate);
     }
-    public Adoption setNewProbationEndDate(Adoption adoption, LocalDate newDate) {
+    public S setNewProbationEndDate(S adoption, LocalDate newDate) {
         if (adoption != null) {
             adoption.setProbationEndDate(newDate);
             adoptionRepository.save(adoption);

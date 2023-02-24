@@ -34,7 +34,7 @@ class AdoptionControllerTests {
     @MockBean
     private PetRepository petRepository;
     @MockBean
-    private PersonRepository personRepository;
+    private PersonDogRepository personDogRepository;
     @MockBean
     private AdoptionRepository adoptionRepository;
     @MockBean
@@ -104,7 +104,7 @@ class AdoptionControllerTests {
         adoptionObject.put("adoptionStatus", adoptionStatus);
 
         when(adoptionRepository.save(any(Adoption.class))).thenReturn(adoption);
-        when(personRepository.findById(anyInt())).thenReturn(Optional.empty());
+        when(personDogRepository.findById(anyInt())).thenReturn(Optional.empty());
         when(petRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         mockMvc.perform(MockMvcRequestBuilders
@@ -156,7 +156,7 @@ class AdoptionControllerTests {
     @Test
     public void getAdoptionByPersonIdTest() throws Exception {
         when(adoptionRepository.findByPerson(any(Person.class))).thenReturn(adoption);
-        when(personRepository.findById(anyInt())).thenReturn(Optional.of(person));
+        when(personDogRepository.findById(anyInt())).thenReturn(Optional.of(person));
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/adoption?personId=" + id)

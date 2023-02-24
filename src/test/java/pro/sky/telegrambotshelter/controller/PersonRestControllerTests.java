@@ -34,7 +34,7 @@ class PersonRestControllerTests {
     @MockBean
     private PetRepository petRepository;
     @MockBean
-    private PersonRepository personRepository;
+    private PersonDogRepository personDogRepository;
     @MockBean
     private AdoptionRepository adoptionRepository;
     @MockBean
@@ -78,7 +78,7 @@ class PersonRestControllerTests {
 
     @Test
     public void getPersonTest() throws Exception {
-        when(personRepository.findById(anyInt())).thenReturn(Optional.of(person));
+        when(personDogRepository.findById(anyInt())).thenReturn(Optional.of(person));
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/person/" + id)
                         .accept(MediaType.APPLICATION_JSON))
@@ -93,7 +93,7 @@ class PersonRestControllerTests {
 
 	@Test
 	public  void allPetsTest() throws Exception{
-		when(personRepository.findAll()).thenReturn(new ArrayList<>(List.of(person)));
+		when(personDogRepository.findAll()).thenReturn(new ArrayList<>(List.of(person)));
 
 		mockMvc.perform(MockMvcRequestBuilders
 					.get("/person")
@@ -111,8 +111,8 @@ class PersonRestControllerTests {
 		personObject.put("phone", phone);
 		personObject.put("email", email);
 
-		when(personRepository.findById(any(Integer.class))).thenReturn(Optional.of(person));
-		when(personRepository.save(any(Person.class))).thenReturn(person);
+		when(personDogRepository.findById(any(Integer.class))).thenReturn(Optional.of(person));
+		when(personDogRepository.save(any(Person.class))).thenReturn(person);
 
 		mockMvc.perform(MockMvcRequestBuilders
 						.put("/person")
@@ -130,13 +130,13 @@ class PersonRestControllerTests {
 
 	@Test
 	public void deletePetTest() throws Exception{
-		doNothing().when(personRepository).deleteById(anyInt());
+		doNothing().when(personDogRepository).deleteById(anyInt());
 
 		mockMvc.perform(MockMvcRequestBuilders
 				.delete("/person/" + id))
 				.andExpect(status().isOk());
 
-		verify(personRepository, only()).deleteById(anyInt());
+		verify(personDogRepository, only()).deleteById(anyInt());
 	}
 
 

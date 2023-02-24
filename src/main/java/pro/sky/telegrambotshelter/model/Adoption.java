@@ -7,13 +7,14 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Objects;
 
-@Entity
-public class Adoption{
+
+@MappedSuperclass
+public class Adoption<T extends Person>{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @OneToOne
-    private Person person;
+    private T person;
     @OneToOne
     private Pet pet;
     private LocalDate probationStartDate;
@@ -22,14 +23,10 @@ public class Adoption{
     @Column(name = "adoption_status")
     private AdoptionStatus adoptionStatus;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "adoption", fetch = FetchType.LAZY)
-    private Collection<AdoptionReport> adoptionReports;
-
     public Adoption() {
     }
 
-    public Adoption(Person person, Pet pet, LocalDate probationStartDate, LocalDate probationEndDate, AdoptionStatus adoptionStatus) {
+    public Adoption(T person, Pet pet, LocalDate probationStartDate, LocalDate probationEndDate, AdoptionStatus adoptionStatus) {
         this.person = person;
         this.pet = pet;
         this.probationStartDate = probationStartDate;
@@ -45,11 +42,11 @@ public class Adoption{
         this.id = id;
     }
 
-    public Person getPerson() {
+    public T getPerson() {
         return person;
     }
 
-    public void setPerson(Person person) {
+    public void setPerson(T person) {
         this.person = person;
     }
 
@@ -83,14 +80,6 @@ public class Adoption{
 
     public void setAdoptionStatus(AdoptionStatus adoptionStatus) {
         this.adoptionStatus = adoptionStatus;
-    }
-
-    public void setAdoptionReports(Collection<AdoptionReport> adoptionReports) {
-        this.adoptionReports = adoptionReports;
-    }
-
-    public Collection<AdoptionReport> getAdoptionReports() {
-        return adoptionReports;
     }
 
     @Override

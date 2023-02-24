@@ -6,16 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import pro.sky.telegrambotshelter.model.Adoption;
-import pro.sky.telegrambotshelter.model.AdoptionReport;
-import pro.sky.telegrambotshelter.model.AdoptionStatus;
-import pro.sky.telegrambotshelter.model.Person;
+import pro.sky.telegrambotshelter.model.*;
 import pro.sky.telegrambotshelter.service.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -25,8 +20,6 @@ import java.util.stream.Collectors;
 @Component
 public class ScheduledJobsExecutor extends Processor {
 
-    private final Logger logger = LoggerFactory.getLogger(ScheduledJobsExecutor.class);
-
     private final String DAILY_TEXT_REPORT_REMINDER="DAILY_TEXT_REPORT_REMINDER";
     private final String DAILY_PHOTO_REPORT_REMINDER="DAILY_PHOTO_REPORT_REMINDER";
     private final String PROBATION_EXTENDED_NOTIF = "PROBATION_EXTENDED_NOTIF";
@@ -34,12 +27,17 @@ public class ScheduledJobsExecutor extends Processor {
     private final String PROBATION_SUCCESSFUL_NOTIF = "PROBATION_SUCCESSFUL_NOTIF";
     private final String REPORTS_MISSING_FOR2DAYS = "REPORTS_MISSING_FOR2DAYS";
 
-    public ScheduledJobsExecutor(PersonService personService, AdoptionService adoptionService, PetService petService,
-                                  AdoptionReportService adoptionReportService, UserContextService userContextService) {
-        super(personService, petService, adoptionService, adoptionReportService, userContextService);
+
+    public ScheduledJobsExecutor(PersonDogService personDogService, PersonCatService personCatService,
+                                 AdoptionDogService adoptionDogService, AdoptionCatService adoptionCatService,
+                                 AdoptionReportDogService adoptionReportDogService, AdoptionReportCatService adoptionReportCatService,
+                                 PetService petService, UserContextService userContextService) {
+        super(personDogService, personCatService, adoptionDogService, adoptionCatService,
+                adoptionReportDogService, adoptionReportCatService, petService, userContextService);
+        logger = LoggerFactory.getLogger(ScheduledJobsExecutor.class);
     }
 
-    /**
+   /**
      * This method sends daily report reminder to all people with active adoptions on probation.<br>
      *  - If a person hasn't sent daily text report yet, he will receive reminder to send text report.<br>
      *  - If a person hasn't sent daily photo report yet, he will receive reminder to send photo report.<br>
@@ -51,17 +49,26 @@ public class ScheduledJobsExecutor extends Processor {
     @Scheduled (cron = "0 0 12 * * *")
     public void dailyReportReminder(){
         logger.info("Sending daily report reminders");
-        List<Adoption> activeAdoptions = adoptionService.getAllActiveProbations();
+        List<AdoptionDog> activeAdoptionsDog = adoptionDogService.getAllActiveProbations();
+        List<AdoptionCat> activeAdoptionsCat = adoptionCatService.getAllActiveProbations();
         //sending reminder to those who hasn't sent text report
-        activeAdoptions.stream()
-                .filter(a -> adoptionReportService.findAllByAdoptionAndReportDate(a, LocalDate.now()).stream()
+        activeAdoptionsDog.stream()
+                .filter(a -> adoptionReportDogService.findAllByAdoptionAndReportDate(a, LocalDate.now()).stream()
+                        .noneMatch(adoptionReport -> adoptionReport.getMediaType().equals(MediaType.TEXT_PLAIN.toString())))
+                .forEach(adoption -> sendMessage(adoption.getPerson().getChatId(), bundle.getString(DAILY_TEXT_REPORT_REMINDER)));
+        activeAdoptionsCat.stream()
+                .filter(a -> adoptionReportCatService.findAllByAdoptionAndReportDate(a, LocalDate.now()).stream()
                         .noneMatch(adoptionReport -> adoptionReport.getMediaType().equals(MediaType.TEXT_PLAIN.toString())))
                 .forEach(adoption -> sendMessage(adoption.getPerson().getChatId(), bundle.getString(DAILY_TEXT_REPORT_REMINDER)));
         //sending reminder to those who hasn't sent photo report
         Set<String> photoMediaTypes = new HashSet<>(Set.of(MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE,
                 MediaType.IMAGE_PNG_VALUE));
-        activeAdoptions.stream()
-                .filter(a -> adoptionReportService.findAllByAdoptionAndReportDate(a, LocalDate.now()).stream()
+        activeAdoptionsDog.stream()
+                .filter(a -> adoptionReportDogService.findAllByAdoptionAndReportDate(a, LocalDate.now()).stream()
+                        .noneMatch(adoptionReport -> photoMediaTypes.contains(adoptionReport.getMediaType())))
+                .forEach(adoption -> sendMessage(adoption.getPerson().getChatId(), bundle.getString(DAILY_PHOTO_REPORT_REMINDER)));
+        activeAdoptionsCat.stream()
+                .filter(a -> adoptionReportCatService.findAllByAdoptionAndReportDate(a, LocalDate.now()).stream()
                         .noneMatch(adoptionReport -> photoMediaTypes.contains(adoptionReport.getMediaType())))
                 .forEach(adoption -> sendMessage(adoption.getPerson().getChatId(), bundle.getString(DAILY_PHOTO_REPORT_REMINDER)));
     }
@@ -79,13 +86,32 @@ public class ScheduledJobsExecutor extends Processor {
     @Scheduled(cron = "0 0 13 * * *")
     public void callVolunteerForInaccurateReports() {
         logger.info("Sending contacts with bad report records to volunteer");
-        Set<Adoption> adoptionsWithReportsFor2Days = adoptionReportService
+
+        Set<AdoptionDog> adoptionsWithReportsFor2DaysDog = adoptionReportDogService
                 .findAllByDateBetween(LocalDate.now().minusDays(2), LocalDate.now())
                 .stream()
                 .map(AdoptionReport::getAdoption)
                 .collect(Collectors.toSet());
-        adoptionService.getAllActiveProbations().stream()
-                .filter(adoption -> !adoptionsWithReportsFor2Days.contains(adoption))
+        adoptionDogService.getAllActiveProbations().stream()
+                .filter(adoption -> !adoptionsWithReportsFor2DaysDog.contains(adoption))
+                .forEach(adoption -> {
+                    sendMessage(volunteerChatId, bundle.getString(REPORTS_MISSING_FOR2DAYS)
+                            + " Adoption ID: " + adoption.getId());
+                    Person person = adoption.getPerson();
+                    try {
+                        telegramBot.execute(new SendContact(volunteerChatId, person.getPhone(), person.getFirstName()));
+                    } catch (Exception e) {
+                        logger.error("Contact sending failed");
+                        e.printStackTrace();
+                    }
+                });
+        Set<AdoptionCat> adoptionsWithReportsFor2DaysCat = adoptionReportCatService
+                .findAllByDateBetween(LocalDate.now().minusDays(2), LocalDate.now())
+                .stream()
+                .map(AdoptionReport::getAdoption)
+                .collect(Collectors.toSet());
+        adoptionCatService.getAllActiveProbations().stream()
+                .filter(adoption -> !adoptionsWithReportsFor2DaysCat.contains(adoption))
                 .forEach(adoption -> {
                     sendMessage(volunteerChatId, bundle.getString(REPORTS_MISSING_FOR2DAYS)
                             + " Adoption ID: " + adoption.getId());
@@ -115,18 +141,32 @@ public class ScheduledJobsExecutor extends Processor {
     public void adoptionStatusUpdateNotification(){
         logger.info("Sending status update notifications");
         //отправка уведомления о смене статуса испытательного срока + смена статуса
-        adoptionService.getAllAdoptionsByStatus(AdoptionStatus.PROBATION_EXTENDED).forEach(adoption -> {
-            sendMessage(adoption.getPerson().getChatId(), bundle.getString(PROBATION_EXTENDED_NOTIF)
-            + adoption.getProbationEndDate());
-            adoptionService.setNewStatus(adoption, AdoptionStatus.ON_PROBATION);
-        });
-        adoptionService.getAllAdoptionsByStatus(AdoptionStatus.PROBATION_FAILED).forEach(adoption -> {
-            sendMessage(adoption.getPerson().getChatId(), bundle.getString(PROBATION_FAILED_NOTIF));
-            adoptionService.setNewStatus(adoption, AdoptionStatus.ADOPTION_REFUSED);
-        });
-        adoptionService.getAllAdoptionsByStatus(AdoptionStatus.PROBATION_SUCCESSFUL).forEach(adoption -> {
-            sendMessage(adoption.getPerson().getChatId(), bundle.getString(PROBATION_SUCCESSFUL_NOTIF));
-            adoptionService.setNewStatus(adoption, AdoptionStatus.ADOPTION_CONFIRMED);
-        });
+        EnumMap<AdoptionStatus, AdoptionStatus> statusMap = new EnumMap<>(AdoptionStatus.class);
+        statusMap.put(AdoptionStatus.PROBATION_EXTENDED, AdoptionStatus.ON_PROBATION);
+        statusMap.put(AdoptionStatus.PROBATION_FAILED, AdoptionStatus.ADOPTION_REFUSED);
+        statusMap.put(AdoptionStatus.PROBATION_SUCCESSFUL, AdoptionStatus.ADOPTION_CONFIRMED);
+        EnumMap<AdoptionStatus, String> messageMap = new EnumMap<>(AdoptionStatus.class);
+        messageMap.put(AdoptionStatus.PROBATION_EXTENDED, bundle.getString(PROBATION_EXTENDED_NOTIF));
+        messageMap.put(AdoptionStatus.PROBATION_FAILED, bundle.getString(PROBATION_FAILED_NOTIF));
+        messageMap.put(AdoptionStatus.PROBATION_SUCCESSFUL, bundle.getString(PROBATION_SUCCESSFUL_NOTIF));
+        adoptionDogService.getAllAdoptionsByStatus(statusMap.keySet().toArray(new AdoptionStatus[]{}))
+                .forEach(adoption -> {
+                    AdoptionStatus adoptionStatus = adoption.getAdoptionStatus();
+                    sendMessage(adoption.getPerson().getChatId(), messageMap.get(adoptionStatus)
+                            + adoption.getProbationEndDate());
+                    adoptionDogService.setNewStatus(adoption, statusMap.get(adoptionStatus));
+                    logger.info("Dog shelter status changed: " + adoptionStatus + " -> " + adoption.getAdoptionStatus() +
+                            " for adoptionId: " + adoption.getId());
+                });
+        adoptionCatService.getAllAdoptionsByStatus(statusMap.keySet().toArray(new AdoptionStatus[]{}))
+                .forEach(adoption -> {
+                    AdoptionStatus adoptionStatus = adoption.getAdoptionStatus();
+                    sendMessage(adoption.getPerson().getChatId(), messageMap.get(adoptionStatus)
+                            + adoption.getProbationEndDate());
+                    adoptionCatService.setNewStatus(adoption, statusMap.get(adoptionStatus));
+                    logger.info("Cat shelter status changed: " + adoptionStatus + " -> " + adoption.getAdoptionStatus() +
+                            " for adoptionId: " + adoption.getId());
+                });
     }
+
 }

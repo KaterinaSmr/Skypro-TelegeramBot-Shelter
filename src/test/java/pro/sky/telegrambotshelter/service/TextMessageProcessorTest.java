@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
-import pro.sky.telegrambotshelter.lilstener.CallbackQueryProcessor;
 import pro.sky.telegrambotshelter.lilstener.TextMessageProcessor;
 import pro.sky.telegrambotshelter.model.*;
 import pro.sky.telegrambotshelter.repository.*;
@@ -29,7 +28,7 @@ public class TextMessageProcessorTest {
     @Mock
     private PetRepository petRepository;
     @Mock
-    private PersonRepository personRepository;
+    private PersonDogRepository personDogRepository;
     @Mock
     private AdoptionRepository adoptionRepository;
     @Mock
@@ -120,7 +119,7 @@ public class TextMessageProcessorTest {
         adoption.setId(id);
         userContext = new UserContext(chatId, "/volunteer");
 
-        when(personRepository.findByChatId(anyLong())).thenReturn(Optional.of(person));
+        when(personDogRepository.findByChatId(anyLong())).thenReturn(Optional.of(person));
         when(adoptionRepository.findByPerson(any(Person.class))).thenReturn(adoption);
         when(userContextRepository.findByChatId(anyLong())).thenReturn(userContext);
 

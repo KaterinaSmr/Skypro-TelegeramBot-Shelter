@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionReport;
+import pro.sky.telegrambotshelter.model.Person;
 import pro.sky.telegrambotshelter.service.AdoptionReportService;
 
 import javax.servlet.http.HttpServletResponse;
@@ -21,12 +23,11 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
 
-@RestController
-@RequestMapping("/adoption_report")
-public class AdoptionReportController {
-    private final AdoptionReportService adoptionReportService;
 
-    public AdoptionReportController(AdoptionReportService adoptionReportService) {
+public class AdoptionReportController <V extends AdoptionReport<S, T>, S extends Adoption<T>, T extends Person> {
+    private final AdoptionReportService<V, S, T> adoptionReportService;
+
+    public AdoptionReportController(AdoptionReportService<V, S, T> adoptionReportService) {
         this.adoptionReportService = adoptionReportService;
     }
 
@@ -41,7 +42,7 @@ public class AdoptionReportController {
             )
     })
     @GetMapping
-    public Collection<AdoptionReport> allReports(){
+    public Collection<V> allReports(){
         return adoptionReportService.findAll();
     }
 
@@ -59,7 +60,7 @@ public class AdoptionReportController {
             }
     )
     @GetMapping(params = "reportDate")
-    public Collection<AdoptionReport> getReportsByDate(@Parameter(description = "Дата в формате ДДММГГГГ", example = "07022023")
+    public Collection<V> getReportsByDate(@Parameter(description = "Дата в формате ДДММГГГГ", example = "07022023")
             @RequestParam(name = "reportDate", required = false) String date){
        return adoptionReportService.findAllByDate(date);
     }
@@ -75,7 +76,7 @@ public class AdoptionReportController {
             )
     })
     @GetMapping(params ={"fromDate", "toDate"})
-    public Collection<AdoptionReport> getReportsByDateBetween(
+    public Collection<V> getReportsByDateBetween(
             @Parameter(description = "Начало периода в формате ДДММГГГГ", example = "25012023") @RequestParam(name = "fromDate", required = false) String fromDate,
             @Parameter(description = "Конец периода выборки в формате ДДММГГГГ", example = "10022023") @RequestParam(name = "toDate", required = false) String toDate){
         return adoptionReportService.findAllByDateBetween(fromDate, toDate);
@@ -99,10 +100,10 @@ public class AdoptionReportController {
             }
     )
     @GetMapping(params = {"adoptionId", "date"})
-    public ResponseEntity<Collection<AdoptionReport>> getReportsByAdoptionIdAndDate(
+    public ResponseEntity<Collection<V>> getReportsByAdoptionIdAndDate(
             @RequestParam(name = "adoptionId", required = false) Integer adoptionId,
             @RequestParam(name = "date", required = false) String date) {
-        Collection<AdoptionReport> reports = adoptionReportService.findAllByAdoptionAndReportDate(adoptionId, date);
+        Collection<V> reports = adoptionReportService.findAllByAdoptionAndReportDate(adoptionId, date);
         if (reports == null){
             return ResponseEntity.badRequest().build();
         }
@@ -126,14 +127,14 @@ public class AdoptionReportController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<AdoptionReport> getById(
+    public ResponseEntity<V> getById(
             @Parameter(description = "id отчета", example = "17")
             @PathVariable Integer id, HttpServletResponse response) throws IOException {
-        Optional<AdoptionReport> op = adoptionReportService.findById(id);
+        Optional<V> op = adoptionReportService.findById(id);
         if (op.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        AdoptionReport adoptionReport = op.get();
+        V adoptionReport = op.get();
         Path filePath = Path.of(adoptionReport.getFilePath());
         try(InputStream in = Files.newInputStream(filePath);
             OutputStream out = response.getOutputStream();
@@ -162,8 +163,8 @@ public class AdoptionReportController {
             }
     )
     @DeleteMapping("/{id}")
-    public ResponseEntity<AdoptionReport> delete(@PathVariable Integer id, @RequestParam ("removeFile") Boolean removeFile){
-        AdoptionReport removed = adoptionReportService.delete(id, removeFile);
+    public ResponseEntity<V> delete(@PathVariable Integer id, @RequestParam ("removeFile") Boolean removeFile){
+        V removed = adoptionReportService.delete(id, removeFile);
         if (removed == null){
             return ResponseEntity.notFound().build();
         }

@@ -4,13 +4,9 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.ForwardMessage;
 import com.pengrad.telegrambot.request.SendMessage;
-import liquibase.pro.packaged.M;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import pro.sky.telegrambotshelter.model.Adoption;
-import pro.sky.telegrambotshelter.model.AdoptionReport;
-import pro.sky.telegrambotshelter.model.PetType;
+import pro.sky.telegrambotshelter.model.*;
 import pro.sky.telegrambotshelter.service.*;
 
 import java.io.BufferedWriter;
@@ -23,11 +19,13 @@ import java.time.LocalDate;
 @Component
 public class TextMessageProcessor extends Processor {
 
-    private final Logger logger = LoggerFactory.getLogger(TextMessageProcessor.class);
-
-    public TextMessageProcessor(PersonService personService, AdoptionService adoptionService, PetService petService,
-                                AdoptionReportService adoptionReportService, UserContextService userContextService) {
-        super(personService, petService, adoptionService, adoptionReportService, userContextService);
+    public TextMessageProcessor(PersonDogService personDogService, PersonCatService personCatService,
+                                AdoptionDogService adoptionDogService, AdoptionCatService adoptionCatService,
+                                AdoptionReportDogService adoptionReportDogService, AdoptionReportCatService adoptionReportCatService,
+                                PetService petService, UserContextService userContextService) {
+        super(personDogService, personCatService, adoptionDogService, adoptionCatService,
+                adoptionReportDogService, adoptionReportCatService, petService, userContextService);
+        logger = LoggerFactory.getLogger(TextMessageProcessor.class);
     }
 
     public void process(long chatId, String message, int messageId) {
@@ -35,16 +33,15 @@ public class TextMessageProcessor extends Processor {
             switch (message) {
                 case SEND_WARNING -> {
                     userContextService.save(chatId, SEND_WARNING);
-                    sendMessage(chatId, "Пожалуйста введите adoption id, по которому необходимо отправить" +
-                            " уведомление о недостаточной частоте и детальности отчетов");
+                    requestShelterType(chatId, "Для усыновителя какого приюта необходимо отправить уведомление " +
+                            "о недостаточной частоте и детальности отчетов");
                 }
                 default -> processVolunteerRequest(chatId, message);
             }
         } else {
             switch (message) {
                 case START -> {
-//                    sendStartMenu(chatId);
-                    requestShelterType(chatId, message);
+                    requestShelterType(chatId, bundle.getString(message));
                     userContextService.save(chatId, message);
                 }
                 case INFO -> {
@@ -56,7 +53,7 @@ public class TextMessageProcessor extends Processor {
                     userContextService.save(chatId, message);
                 }
                 case GET_A_PET -> {
-                    sendGetADogSubmenu(chatId);
+                    sendGetAPetSubmenu(chatId);
                     userContextService.save(chatId, message);
                 }
                 case CALL_A_VOLUNTEER -> {
@@ -70,9 +67,9 @@ public class TextMessageProcessor extends Processor {
 
     private void requestShelterType(long chatId, String message){
         InlineKeyboardButton[]keyboard = {new InlineKeyboardButton("Собаки").callbackData(DOG),
-                        new InlineKeyboardButton("Кошки").callbackData(CAT)};
+                new InlineKeyboardButton("Кошки").callbackData(CAT)};
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup(keyboard);
-        sendMessage(new SendMessage(chatId, bundle.getString(message)).replyMarkup(inlineKeyboardMarkup));
+        sendMessage(new SendMessage(chatId, message).replyMarkup(inlineKeyboardMarkup));
     }
 
     /**
@@ -87,21 +84,24 @@ public class TextMessageProcessor extends Processor {
      */
     private void processVolunteerRequest(long chatId, String message) {
         String lastCommand = userContextService.getLastCommand(chatId);
-        if (chatId == volunteerChatId && lastCommand != null && lastCommand.equals(SEND_WARNING)) {
+        PetType shelter = userContextService.getPetType(chatId);
+        if (chatId == volunteerChatId && lastCommand != null && lastCommand.equals(SEND_WARNING) && shelter != null) {
             try {
                 int adoptionId = Integer.parseInt(message);
-                Adoption adoption = adoptionService.findById(adoptionId);
+                Adoption adoption = shelter == PetType.DOG ? adoptionDogService.findById(adoptionId)
+                        : adoptionCatService. findById(adoptionId);
                 if (adoption == null) {
                     sendMessage(chatId, "Не найдена запись об усыновлении с adoption id = " + adoptionId +
                             ". Пожалуйста введите корректный номер id записи об усыновлении. ");
                     return;
                 }
                 sendMessage(adoption.getPerson().getChatId(), bundle.getString(SEND_WARNING));
-                userContextService.save(chatId, "");
+                userContextService.save(chatId, "", null);
+                sendMessage(chatId, "Сообщение отправлено");
             } catch (NumberFormatException e) {
                 e.printStackTrace();
-                sendMessage(chatId, "Некорректный формат. Пожалуйста пришлите целочисленное значение adoption Id.");
-            }
+                    sendMessage(chatId, "Некорректный формат. Пожалуйста пришлите целочисленное значение adoption Id.");
+                }
         }
     }
 
@@ -122,14 +122,23 @@ public class TextMessageProcessor extends Processor {
      */
 
     private void processUnknownRequest(long chatId, String message, int messageId) {
-        Adoption adoption = adoptionService.findByChatId(chatId);
+        Adoption adoption = adoptionDogService.findByChatId(chatId);
+        PetType petType= PetType.DOG;
+        if (adoption == null){
+            adoption = adoptionCatService.findByChatId(chatId);
+            petType = PetType.CAT;
+        }
         String lastCommand = userContextService.getLastCommand(chatId);
         if (lastCommand != null) {
             switch (lastCommand) {
                 case REPORT:
-                    if (adoption != null) {
+                    if (adoption == null) {
+                        sendMessage(chatId, "Не найдены сведения по вашему усыновлению. " +
+                                "Пожалуйста обратитесь к волонтеру.");
+                        return;
+                    } else {
                         try {
-                            saveTextReport(chatId, adoption, message);
+                            saveTextReport(chatId, adoption, message, petType);
                         } catch (Exception e) {
                             e.printStackTrace();
                             logger.error("Error saving text report for adoption id: " + adoption.getId());
@@ -154,7 +163,8 @@ public class TextMessageProcessor extends Processor {
     }
 
     private void sendInfoSubmenu(long chatId) {
-        String path = addPersonUrl + chatId;
+        PetType petType = userContextService.getPetType(chatId);
+        String path = addPersonUrl+ petType.toString() + "?chatId=" + chatId;
         InlineKeyboardButton[][] keyboard = {
                 {new InlineKeyboardButton("О приюте").callbackData(TEXT_ABOUT_SHELTER),
                         new InlineKeyboardButton("Расписание, адрес, \nсхема проезда").callbackData(TEXT_ADDRESS)},
@@ -168,9 +178,9 @@ public class TextMessageProcessor extends Processor {
         sendMessage(new SendMessage(chatId, "Пожалуйста, выберите что Вас интересует:").replyMarkup(inlineKeyboardMarkup));
     }
 
-    private void sendGetADogSubmenu(long chatId) {
+    private void sendGetAPetSubmenu(long chatId) {
         PetType petType = userContextService.getPetType(chatId);
-        String path = addPersonUrl + chatId;
+        String path = addPersonUrl+ petType.toString() + "?chatId=" + chatId;
 
         InlineKeyboardButton[] additionalButtonForDogs = {new InlineKeyboardButton("Советы кинолога").url(cynologistAdviceUrl),
                 new InlineKeyboardButton("Список кинологов").callbackData(TEXT_CYNOLOGIST_LIST)};
@@ -210,8 +220,8 @@ public class TextMessageProcessor extends Processor {
      * @param message  text message received from user to be saved as report
      * @throws IOException
      */
-    private void saveTextReport(long chatId, Adoption adoption, String message) throws IOException {
-        Path newFilePath = getFilePathUtil(adoption.getId(), "txt");
+    private void saveTextReport(long chatId, Adoption adoption, String message, PetType petType) throws IOException {
+        Path newFilePath = getFilePathUtil(adoption.getId(), "txt", petType.toString());
         if (newFilePath == null) {
             sendMessage(chatId, "Не удалось сохранить отчет. Превышено количество сообщений за " + LocalDate.now()
                     + ". Пожалуйста обратитесь к волонтеру");
@@ -224,9 +234,15 @@ public class TextMessageProcessor extends Processor {
         }
         logger.info("Saved report file " + newFilePath);
         String contentType = Files.probeContentType(newFilePath);
-        AdoptionReport adoptionReport = new AdoptionReport(adoption, newFilePath.toString(),
-                contentType, LocalDate.now());
-        adoptionReportService.save(adoptionReport);
+        if (petType == PetType.DOG) {
+            AdoptionReportDog adoptionReport = new AdoptionReportDog((AdoptionDog) adoption, newFilePath.toString(),
+                    contentType, LocalDate.now());
+            adoptionReportDogService.save(adoptionReport);
+        } else if (petType == PetType.CAT){
+            AdoptionReportCat adoptionReport = new AdoptionReportCat((AdoptionCat) adoption, newFilePath.toString(),
+                    contentType, LocalDate.now());
+            adoptionReportCatService.save(adoptionReport);
+        }
         sendMessage(chatId, "Сообщение добавлено в отчет за " + LocalDate.now());
     }
 

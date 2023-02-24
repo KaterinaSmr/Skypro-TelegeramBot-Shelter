@@ -1,7 +1,7 @@
 package pro.sky.telegrambotshelter.service;
 
-import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.model.Person;
+import pro.sky.telegrambotshelter.repository.PersonDogRepository;
 import pro.sky.telegrambotshelter.repository.PersonRepository;
 
 import java.util.Collection;
@@ -11,33 +11,32 @@ import java.util.Optional;
  * A Service class to perform CRUD operations with the "person" table in database.
  * @author Ekaterina Gorbacheva
  */
-@Service
-public class PersonService {
+public abstract class PersonService <T extends Person> {
 
-    private final PersonRepository personRepository;
+    private final PersonRepository<T> personRepository;
 
-    public PersonService(PersonRepository personRepository) {
+    protected PersonService(PersonRepository<T> personRepository) {
         this.personRepository = personRepository;
     }
 
     /**
      * Finds a {@link Person} object record in the "person" with the chatId specified.
-     * Uses {@link PersonRepository}.
+     * Uses {@link PersonDogRepository}.
      * @param chatId telegram chat identification for a {@link Person} object
      * @return {@link Optional<Person>} of the search result
      */
-    public Optional<Person> findPersonByChatId(long chatId){
+    public Optional<T> findPersonByChatId(long chatId){
         return personRepository.findByChatId(chatId);
     }
 
     /**
-     * Saves a new {@link Person} object to a "person" table. Uses {@link PersonRepository}.
+     * Saves a new {@link Person} object to a "person" table. Uses {@link PersonDogRepository}.
      * The  field in the new {@link Person} object should be unique. If the "person" table already contains a record
      * with the same chat_id value, then the new record is not saved, and this method returns {@code null}.
      * @param person new {@link Person} object to be saved
      * @return {@link Person} object just saved, or {@code null}. in case of duplicated chat_id
      */
-    public Person save(Person person) {
+    public T save(T person) {
         if (findPersonByChatId(person.getChatId()).isPresent()){
             return null;
         }
@@ -45,31 +44,31 @@ public class PersonService {
     }
 
     /**
-     * Returns {@link Person} object from db table "person" by person ID. Uses {@link PersonRepository}.
+     * Returns {@link Person} object from db table "person" by person ID. Uses {@link PersonDogRepository}.
      * @param personId identification of a person to be found
      * @return Person object with the id specified, or {@code null}. if not found
      */
-    public Person findById(int personId) {
+    public T findById(int personId) {
         return personRepository.findById(personId).orElse(null);
     }
 
     /**
-     * A method to get all records from the db table "person". Uses {@link PersonRepository}
+     * A method to get all records from the db table "person". Uses {@link PersonDogRepository}
      * @return {@link Collection} of all {@link Person} objects saved in db table "person"
      */
-    public Collection<Person> findAll() {
+    public Collection<T> findAll() {
         return personRepository.findAll();
     }
 
     /**
      * A method for saving updates of a {@link Person} object to the db table "person".
-     * Uses {@link PersonRepository}
+     * Uses {@link PersonDogRepository}
      * @param person {@link Person} object with updates to be saved
      * @return {@link Person} object with updated fields, or {@code null} if a person with the id specified is not found.
      * @throws org.hibernate.exception.ConstraintViolationException in case of duplicated chatId
      */
-    public Person edit(Person person) {
-        Person personFound = findById(person.getId());
+    public T edit(T person) {
+        T personFound = findById(person.getId());
         if (personFound == null){
             return null;
         }
@@ -77,7 +76,7 @@ public class PersonService {
     }
 
     /**
-     * Removes a record from the "person" table with this id. Uses {@link PersonRepository}
+     * Removes a record from the "person" table with this id. Uses {@link PersonDogRepository}
      * @param id identification of a {@link Person} to be removed from db table "person"
      */
     public void delete(Integer id) {

@@ -15,12 +15,10 @@ import pro.sky.telegrambotshelter.service.PersonService;
 
 import java.util.Collection;
 
-@RestController
-@RequestMapping("/person")
-public class PersonRestController {
-    private final PersonService personService;
+public class PersonRestController<T extends Person> {
+    private final PersonService<T> personService;
 
-    public PersonRestController(PersonService personService) {
+    public PersonRestController(PersonService<T> personService) {
         this.personService = personService;
     }
 
@@ -38,7 +36,7 @@ public class PersonRestController {
             }
     )
     @GetMapping
-    public Collection<Person> allPeople(){
+    public Collection<T> allPeople(){
         return personService.findAll();
     }
 
@@ -56,9 +54,9 @@ public class PersonRestController {
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<Person> getPerson(@Parameter(description = "id пользователя", example = "1")
+    public ResponseEntity<T> getPerson(@Parameter(description = "id пользователя", example = "1")
                                                 @PathVariable Integer id){
-        Person person = personService.findById(id);
+        T person = personService.findById(id);
         if (person == null){
             return ResponseEntity.notFound().build();
         }
@@ -77,8 +75,8 @@ public class PersonRestController {
             )
     )
     @PutMapping()
-    public ResponseEntity<Person> editPet(@RequestBody Person person){
-        Person personFound = personService.edit(person);
+    public ResponseEntity<T> editPerson(@RequestBody T person){
+        T personFound = personService.edit(person);
         if (personFound == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.telegrambotshelter.model.Person;
-import pro.sky.telegrambotshelter.repository.PersonRepository;
+import pro.sky.telegrambotshelter.repository.PersonDogRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class PersonServiceTest {
     @Mock
-    private PersonRepository personRepository;
+    private PersonDogRepository personDogRepository;
 
     @InjectMocks
     private PersonService personService;
@@ -49,26 +49,26 @@ public class PersonServiceTest {
 
     @Test
     public void saveTest() {
-        when(personRepository.findByChatId(person.getChatId())).thenReturn(Optional.empty());
-        when(personRepository.save(any(Person.class))).thenReturn(person);
+        when(personDogRepository.findByChatId(person.getChatId())).thenReturn(Optional.empty());
+        when(personDogRepository.save(any(Person.class))).thenReturn(person);
         assertEquals(person, personService.save(person));
 
         long existingChatId = 111222333;
         person.setChatId(existingChatId);
-        when(personRepository.findByChatId(existingChatId)).thenReturn(Optional.of(person));
+        when(personDogRepository.findByChatId(existingChatId)).thenReturn(Optional.of(person));
         assertNull(personService.save(person));
     }
 
     @Test
     public void findPersonByChatIdTest() {
-        when(personRepository.findByChatId(person.getChatId())).thenReturn(Optional.of(person));
+        when(personDogRepository.findByChatId(person.getChatId())).thenReturn(Optional.of(person));
         assertEquals(Optional.of(person), personService.findPersonByChatId(person.getChatId()));
     }
 
     @Test
     public void findByIdTest() {
-        when(personRepository.findById(id)).thenReturn(Optional.of(person));
-        when(personRepository.findById(2)).thenReturn(Optional.empty());
+        when(personDogRepository.findById(id)).thenReturn(Optional.of(person));
+        when(personDogRepository.findById(2)).thenReturn(Optional.empty());
 
         assertEquals(person, personService.findById(id));
         assertNull(personService.findById(2));
@@ -76,26 +76,26 @@ public class PersonServiceTest {
 
     @Test
     public void findAllTest() {
-        when(personRepository.findAll()).thenReturn(new ArrayList<>(List.of(person)));
+        when(personDogRepository.findAll()).thenReturn(new ArrayList<>(List.of(person)));
         assertEquals(new ArrayList<>(List.of(person)), personService.findAll());
     }
 
     @Test
     public void editTest() {
-        when(personRepository.findById(id)).thenReturn(Optional.of(person));
-        when(personRepository.save(any(Person.class))).thenReturn(person);
+        when(personDogRepository.findById(id)).thenReturn(Optional.of(person));
+        when(personDogRepository.save(any(Person.class))).thenReturn(person);
         assertEquals(person, personService.edit(person));
 
-        when(personRepository.findById(2)).thenReturn(Optional.empty());
+        when(personDogRepository.findById(2)).thenReturn(Optional.empty());
         person.setId(2);
         assertNull(personService.edit(person));
     }
 
     @Test
     public void deleteTest() {
-        doNothing().when(personRepository).deleteById(anyInt());
+        doNothing().when(personDogRepository).deleteById(anyInt());
 
         personService.delete(id);
-        verify(personRepository, only()).deleteById(anyInt());
+        verify(personDogRepository, only()).deleteById(anyInt());
     }
 }

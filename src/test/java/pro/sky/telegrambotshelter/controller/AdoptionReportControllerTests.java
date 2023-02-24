@@ -34,7 +34,7 @@ class AdoptionReportControllerTests {
     @MockBean
     private PetRepository petRepository;
     @MockBean
-    private PersonRepository personRepository;
+    private PersonDogRepository personDogRepository;
     @MockBean
     private AdoptionRepository adoptionRepository;
     @MockBean

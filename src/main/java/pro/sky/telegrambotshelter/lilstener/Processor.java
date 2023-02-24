@@ -2,6 +2,7 @@ package pro.sky.telegrambotshelter.lilstener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.PetType;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
@@ -42,11 +42,15 @@ public abstract class Processor {
     private ResourceBundle dogBundle;
     protected ResourceBundle bundle;
 
-    protected final PersonService personService;
+    protected final PersonDogService personDogService;
+    protected final PersonCatService personCatService;
     protected final PetService petService;
-    protected final AdoptionService adoptionService;
-    protected final AdoptionReportService adoptionReportService;
+    protected final AdoptionDogService adoptionDogService;
+    protected final AdoptionCatService adoptionCatService;
+    protected final AdoptionReportDogService adoptionReportDogService;
+    protected final AdoptionReportCatService adoptionReportCatService;
     protected final UserContextService userContextService;
+    protected Logger logger;
     protected TelegramBot telegramBot;
 
     protected static final String DOG = "DOG";
@@ -73,12 +77,17 @@ public abstract class Processor {
     protected static final String TEXT_CYNOLOGIST_LIST ="/cynologlist";
     protected static final String SEND_WARNING="/warning";
 
-    public Processor(PersonService personService, PetService petService, AdoptionService adoptionService,
-                     AdoptionReportService adoptionReportService, UserContextService userContextService) {
-        this.personService = personService;
+    public Processor(PersonDogService personDogService, PersonCatService personCatService,
+                     AdoptionDogService adoptionDogService, AdoptionCatService adoptionCatService,
+                     AdoptionReportDogService adoptionReportDogService, AdoptionReportCatService adoptionReportCatService,
+                     PetService petService, UserContextService userContextService) {
+        this.personDogService = personDogService;
+        this.personCatService = personCatService;
         this.petService = petService;
-        this.adoptionReportService = adoptionReportService;
-        this.adoptionService = adoptionService;
+        this.adoptionReportDogService = adoptionReportDogService;
+        this.adoptionReportCatService = adoptionReportCatService;
+        this.adoptionDogService = adoptionDogService;
+        this.adoptionCatService = adoptionCatService;
         this.userContextService = userContextService;
         dogBundle = ResourceBundle.getBundle("texts_dog");
         catBundle = ResourceBundle.getBundle("texts_cat");
@@ -114,7 +123,7 @@ public abstract class Processor {
         try {
             telegramBot.execute(sendMessage);
         } catch (Exception e) {
-//            logger.error("Message sending failed: + sendMessage: " + sendMessage);
+            logger.error("Message sending failed: + sendMessage: " + sendMessage);
             e.printStackTrace();
         }
     }
@@ -130,8 +139,8 @@ public abstract class Processor {
      * @return Path for a new report file, or null if the amount of files exceeds {@value MAX_FILES}
      * @throws IOException
      */
-    protected Path getFilePathUtil(int adoptionId, String extension) throws IOException{
-        Path parentPath = Path.of(reportsPath, LocalDate.now().toString(), String.valueOf(adoptionId));
+    protected Path getFilePathUtil(int adoptionId, String extension, String petType) throws IOException{
+        Path parentPath = Path.of(reportsPath, LocalDate.now().toString(), petType, String.valueOf(adoptionId));
         Files.createDirectories(parentPath);
         int fileCounter = 1;
         File newFile;

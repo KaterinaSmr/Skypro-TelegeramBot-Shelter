@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 import pro.sky.telegrambotshelter.model.*;
 import pro.sky.telegrambotshelter.repository.AdoptionReportRepository;
 import pro.sky.telegrambotshelter.repository.AdoptionRepository;
-import pro.sky.telegrambotshelter.repository.PersonRepository;
+import pro.sky.telegrambotshelter.repository.PersonDogRepository;
 import pro.sky.telegrambotshelter.repository.PetRepository;
 
 import java.nio.file.Path;
@@ -32,7 +32,7 @@ public class AdoptionReportServiceTest {
     @Mock
     private AdoptionRepository adoptionRepository;
     @Mock
-    private PersonRepository personRepository;
+    private PersonDogRepository personDogRepository;
     @Mock
     private PetRepository petRepository;
     @Mock

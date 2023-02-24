@@ -21,7 +21,7 @@ public class CallbackQueryProcessorTest {
     @Mock
     private PetRepository petRepository;
     @Mock
-    private PersonRepository personRepository;
+    private PersonDogRepository personDogRepository;
     @Mock
     private AdoptionRepository adoptionRepository;
     @Mock
@@ -32,7 +32,7 @@ public class CallbackQueryProcessorTest {
     private TelegramBot telegramBot;
 
     @InjectMocks
-    private PersonService personService;
+    private PersonDogService personService;
     @InjectMocks
     private PetService petService;
     @InjectMocks

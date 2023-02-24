@@ -39,3 +39,15 @@ ALTER TABLE adoption DROP COLUMN adoption_status;
 ALTER TABLE adoption ADD COLUMN adoption_status varchar;
 DROP CAST (character varying AS adoption_status);
 DROP TYPE adoption_status;
+
+--changeset egorbacheva:8
+ALTER TABLE adoption RENAME TO adoption_dog;
+CREATE TABLE adoption_cat
+(
+    id                  SERIAL PRIMARY KEY ,
+    person_id           INT REFERENCES person_cat(id) UNIQUE ,
+    pet_id              INT REFERENCES pet(id) UNIQUE ,
+    probation_start_date DATE,
+    probation_end_date  DATE,
+    adoption_status     VARCHAR
+)

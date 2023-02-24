@@ -1,8 +1,8 @@
 package pro.sky.telegrambotshelter.service;
 
-import org.springframework.stereotype.Service;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionReport;
+import pro.sky.telegrambotshelter.model.Person;
 import pro.sky.telegrambotshelter.repository.AdoptionReportRepository;
 
 import java.io.File;
@@ -15,19 +15,19 @@ import java.util.Optional;
  * A Service class to perform CRUD operations with the "adoption_report" table in database.
  * @author Ekaterina Gorbacheva
  */
-@Service
-public class AdoptionReportService {
-    private final AdoptionReportRepository adoptionReportRepository;
-    private final AdoptionService adoptionService;
+public abstract class AdoptionReportService<V extends AdoptionReport<S, T>, S extends Adoption<T>, T extends Person > {
+    private final AdoptionReportRepository<V, S, T> adoptionReportRepository;
+    private final AdoptionService<S, T> adoptionService;
     private final DateTimeFormatter formatter;
 
-    public AdoptionReportService(AdoptionReportRepository adoptionReportRepository, AdoptionService adoptionService) {
+    public AdoptionReportService(AdoptionReportRepository<V, S, T> adoptionReportRepository,
+                                 AdoptionService<S, T> adoptionService) {
         this.adoptionReportRepository = adoptionReportRepository;
         this.adoptionService = adoptionService;
         formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
     }
 
-    public Collection<AdoptionReport> findAll(){
+    public Collection<V> findAll(){
         return adoptionReportRepository.findAll();
     }
 
@@ -37,41 +37,41 @@ public class AdoptionReportService {
      * @param date in String format ("ddMMyyyy")
      * @return {@link Collection} of {@link AdoptionReport} objects with the date specified
      */
-    public Collection<AdoptionReport> findAllByDate(String date){
+    public Collection<V> findAllByDate(String date){
         LocalDate reportDate = LocalDate.parse(date, formatter);
         return adoptionReportRepository.findAllByReportDate(reportDate);
     }
 
-    public Collection<AdoptionReport> findAllByAdoptionAndReportDate(Integer adoptionId, String date){
+    public Collection<V> findAllByAdoptionAndReportDate(Integer adoptionId, String date){
         LocalDate reportDate = LocalDate.parse(date, formatter);
-        Adoption adoption = adoptionService.findById(adoptionId);
+        S adoption = adoptionService.findById(adoptionId);
         return findAllByAdoptionAndReportDate(adoption, reportDate);
     }
-    public Collection<AdoptionReport> findAllByAdoptionAndReportDate(Adoption adoption, LocalDate reportDate){
+    public Collection<V> findAllByAdoptionAndReportDate(S adoption, LocalDate reportDate){
         if (adoption == null){
             return null;
         }
         return adoptionReportRepository.findAllByAdoptionAndReportDate(adoption, reportDate);
     }
 
-    public AdoptionReport save(AdoptionReport adoptionReport) {
+    public V save(V adoptionReport) {
         return adoptionReportRepository.save(adoptionReport);
     }
 
-    public Collection<AdoptionReport> findAllByDateBetween(String from, String to) {
+    public Collection<V> findAllByDateBetween(String from, String to) {
         LocalDate fromDate = LocalDate.parse(from, formatter);
         LocalDate toDate = LocalDate.parse(to, formatter);
         return adoptionReportRepository.findAllByReportDateBetween(fromDate, toDate);
     }
 
-    public Collection<AdoptionReport> findAllByDateBetween(LocalDate from, LocalDate to){
+    public Collection<V> findAllByDateBetween(LocalDate from, LocalDate to){
         if (from == null || to == null || from.isAfter(to)){
             return null;
         }
         return adoptionReportRepository.findAllByReportDateBetween(from, to);
     }
 
-    public Optional<AdoptionReport> findById(Integer id) {
+    public Optional<V> findById(Integer id) {
         return adoptionReportRepository.findById(id);
     }
 
@@ -81,8 +81,8 @@ public class AdoptionReportService {
      * @param removeFile flag for whether to remove the report file represented by this record in table or not
      *                   true - to remove the file, false - to retain the file
      */
-    public AdoptionReport delete(Integer id, boolean removeFile) {
-        AdoptionReport adoptionReport = adoptionReportRepository.findById(id).orElse(null);
+    public V delete(Integer id, boolean removeFile) {
+        V adoptionReport = adoptionReportRepository.findById(id).orElse(null);
         if (adoptionReport == null){
             return null;
         }
