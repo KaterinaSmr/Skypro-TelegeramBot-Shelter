@@ -12,8 +12,10 @@ import java.util.Collection;
 import java.util.Optional;
 
 /**
- * A Service class to perform CRUD operations with the "adoption_report" table in database.
+ * A Service class to perform CRUD operations with the adoption report tables in database for Cat and Dog shelters.
  * @author Ekaterina Gorbacheva
+ * @see AdoptionReportCatService
+ * @see AdoptionReportDogService
  */
 public abstract class AdoptionReportService<V extends AdoptionReport<S, T>, S extends Adoption<T>, T extends Person > {
     private final AdoptionReportRepository<V, S, T> adoptionReportRepository;
@@ -33,7 +35,7 @@ public abstract class AdoptionReportService<V extends AdoptionReport<S, T>, S ex
 
     /**
      * A method to receive a {@link Collection} of all {@link AdoptionReport} records saved in db table
-     * "adoption_report" for a specific date. Uses {@link AdoptionReportRepository}
+     * "adoption_report_dog"/"adoption_report_cat" for a specific date. Uses {@link AdoptionReportRepository}
      * @param date in String format ("ddMMyyyy")
      * @return {@link Collection} of {@link AdoptionReport} objects with the date specified
      */
@@ -76,8 +78,9 @@ public abstract class AdoptionReportService<V extends AdoptionReport<S, T>, S ex
     }
 
     /**
-     * Removes a record from the "adoption_report" table with this id. Uses {@link AdoptionReportRepository}
-     * @param id identification of a {@link AdoptionReport} to be removed from db table "adoption_report
+     * Removes a record from the "adoption_report_dog"/"adoption_report_cat" table with this id.
+     * Uses {@link AdoptionReportRepository}
+     * @param id identification of a {@link AdoptionReport} to be removed from db table "adoption_report_dog"/ "adoption_report_cat"
      * @param removeFile flag for whether to remove the report file represented by this record in table or not
      *                   true - to remove the file, false - to retain the file
      */

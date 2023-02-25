@@ -65,8 +65,9 @@ public class ImageProcessor extends Processor {
      * directories where they can later be accessed to be reviewed.
      * The limit is {@value MAX_FILES} messages a day. If the amount is exceeded, the users receives a notification to
      * call a volunteer.
-     * If report saving is successful, then it is also saved to the "adoption_repot" table with the use of
-     * {@link AdoptionReportService}
+     * If report saving is successful, then it is also saved to the "adoption_report_dog" or "adoption_report_cat" table
+     * with the use of {@link AdoptionReportService}. The correct shelter (Cat shelter or Dog shelter) is determined
+     * based on the chatId of a user. It checks which shelter has an adoption record with this chatId
      *
      * @param photos images received from user
      * @param chatId telegram chat identification for the user

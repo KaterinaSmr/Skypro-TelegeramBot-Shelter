@@ -43,7 +43,8 @@ public class ScheduledJobsExecutor extends Processor {
      *  - If a person has sent no report on the selected day, he will receive both reminders.<br>
      * Active probations are selected according to the method {@link AdoptionService#getAllActiveProbations()}.
      * The presence of text or photo report is determined based on the records in the {@code adoption_report} table
-     * with the current date value in the {@code report_date} table
+     * with the current date value in the {@code report_date} table.
+     * This is performed successively for Dog and Cat Shelters
      */
     @Scheduled (cron = "0 0 12 * * *")
     public void dailyReportReminder(){
@@ -78,9 +79,9 @@ public class ScheduledJobsExecutor extends Processor {
      * A volunteer is defined by special {@code chatId} specified in the application.properties
      * The list of adoptive parents without reports for 2 days if determined from the {@code adoption_report} table.
      * Only active adoptions on probation are taken into account. Active adoptions on probation are determined by the
-     * {@link AdoptionService#getAllActiveProbations()} method. <br>
+     * {@link AdoptionService#getAllActiveProbations()} method. <br> This is performed successively for Dog and Cat Shelters
      * The bot send text info and contact of a person with missing report. Contact included phone number and name from
-     * {@code person} table
+     * {@code person_dog} and {@code person_cat} table
      */
     @Scheduled(cron = "0 0 13 * * *")
     public void callVolunteerForInaccurateReports() {
@@ -135,6 +136,7 @@ public class ScheduledJobsExecutor extends Processor {
      * {@link AdoptionStatus#PROBATION_FAILED} to {@link AdoptionStatus#ADOPTION_REFUSED}
      * {@link AdoptionStatus#PROBATION_FAILED} to {@link AdoptionStatus#ADOPTION_CONFIRMED}
      * After status is changed, these adoptions are no longer relevant to adoption status notification sending.
+     * This is performed successively for Dog and Cat Shelters
      */
     @Scheduled (cron = "0 0 15 * * *")
     public void adoptionStatusUpdateNotification(){

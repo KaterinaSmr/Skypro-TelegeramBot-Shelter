@@ -111,8 +111,8 @@ public class TextMessageProcessor extends Processor {
      * method, and acts accordingly <br>
      * 1) if the last user command was a request to send daily report, then this message is saved as daily report by the
      * {@link TextMessageProcessor#saveTextReport} method.
-     * The chatId is the key to identify whether the user has active probation adoptions or not with the use of
-     * {@link AdoptionService#findByChatId(long)} method. Messages from users without active probation will be ignored.
+     * The chatId is the key to identify whether the user has active probation adoptions or not, and also in which
+     * shelter - Cat or Dog. This is done with the use of {@link AdoptionService#findByChatId(long)} method. Messages from users without active probation will be ignored.
      * <br>
      * 2) if the last command was to call a volunteer, then this message is forwarded to a volunteer.
      * 3) no action is taken in other cases
@@ -208,7 +208,7 @@ public class TextMessageProcessor extends Processor {
 
     /**
      * This method saves messages from users as daily reports.
-     * Files are saved in the {@link TextMessageProcessor#reportsPath}, under the directory with relevant date
+     * Files are saved in the {@link TextMessageProcessor#reportsPath}, under the directory with relevant shelter, date
      * and adoptionId from {@link Adoption} where they can later be accessed to be reviewed.
      * The limit is {@value MAX_FILES} messages a day. If the amount is exceeded, the users receives a notification to
      * call a volunteer.

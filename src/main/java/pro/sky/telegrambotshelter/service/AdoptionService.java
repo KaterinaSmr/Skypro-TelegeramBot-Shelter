@@ -12,8 +12,10 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * A Service class to perform CRUD operations with the "adoption" table in database.
+ * A Service class to perform CRUD operations with the "adoption_cat", "adoption_dog" tables in database.
  * @author Ekaterina Gorbacheva
+ * @see AdoptionDogService
+ * @see AdoptionCatService
  */
 
 public abstract class AdoptionService <S extends Adoption<T>, T extends Person> {
@@ -35,7 +37,7 @@ public abstract class AdoptionService <S extends Adoption<T>, T extends Person> 
     }
 
     /**
-     * Finds all {@link Adoption} object records in the "adoption" db table with the active probation status.
+     * Finds all {@link Adoption} object records in the "adoption_cat"/"adopton_dog" db table with the active probation status.
      * Active probation status is determined by the values in the adoption_status column. Active adoption status
      * corresponds to {@link AdoptionStatus#ON_PROBATION} or {@link AdoptionStatus#PROBATION_EXTENDED} values in
      * the adoption_status field
