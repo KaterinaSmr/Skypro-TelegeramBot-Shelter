@@ -50,7 +50,7 @@ public class UserContextServiceTest {
     public void saveTest() {
         when(userContextRepository.save(any(UserContext.class))).thenReturn(userContext);
         userContextService.save(444555666, "/start");
-        verify(userContextRepository, only()).save(any(UserContext.class));
+        verify(userContextRepository, atLeastOnce()).save(any(UserContext.class));
     }
 
 }

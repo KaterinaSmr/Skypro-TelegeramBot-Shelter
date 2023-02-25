@@ -44,9 +44,8 @@ public class PersonController {
     }
 
     @PostMapping("/DOG/{chatId}")
-    public String savePersonDog(@PathVariable ("chatId") Long chatId,
-                             @ModelAttribute ("person") @Valid PersonDog person, BindingResult bindingResult,
-                             Model model){
+    public String savePersonDog(@PathVariable ("chatId") Long chatId, @ModelAttribute ("person")
+                    @Valid PersonDog person, BindingResult bindingResult, Model model){
         if (bindingResult.hasErrors()) {
             return "add_person";
         }

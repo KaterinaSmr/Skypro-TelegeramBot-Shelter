@@ -1,7 +1,6 @@
-package pro.sky.telegrambotshelter.lilstener;
+package pro.sky.telegrambotshelter.listener;
 
 import com.pengrad.telegrambot.request.SendContact;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;

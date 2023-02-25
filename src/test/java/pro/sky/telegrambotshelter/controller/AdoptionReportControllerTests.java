@@ -36,49 +36,65 @@ class AdoptionReportControllerTests {
     @MockBean
     private PersonDogRepository personDogRepository;
     @MockBean
-    private AdoptionRepository adoptionRepository;
+    private PersonCatRepository personCatRepository;
     @MockBean
-    private AdoptionReportRepository adoptionReportRepository;
+    private AdoptionDogRepository adoptionRepository;
+    @MockBean
+    private AdoptionCatRepository adoptionCatRepository;
+    @MockBean
+    private AdoptionReportDogRepository adoptionReportRepository;
+    @MockBean
+    private AdoptionReportCatRepository adoptionReportCatRepository;
     @MockBean
     private UserContextRepository userContextRepository;
 
     @SpyBean
     private PetService petService;
     @SpyBean
-    private PersonService personService;
+    private PersonDogService personService;
     @SpyBean
-    private AdoptionService adoptionService;
+    private PersonCatService personCatService;
     @SpyBean
-    private AdoptionReportServiceTest adoptionReportService;
+    private AdoptionDogService adoptionService;
+    @SpyBean
+    private AdoptionCatService adoptionCatService;
+    @SpyBean
+    private AdoptionReportDogService adoptionReportService;
+    @SpyBean
+    private AdoptionReportCatService adoptionReportCatService;
     @SpyBean
     private UserContextService userContextService;
 
     @InjectMocks
-    private AdoptionReportController adoptionReportController;
+    private AdoptionReportDogController adoptionReportController;
+    @InjectMocks
+    private AdoptionReportCatController adoptionReportCatController;
+
+    private String url = "/adoption_report_dog";
 
     private int id;
-    private Adoption adoption;
+    private AdoptionDog adoption;
     private String filePath;
     private String mediaType;
     private LocalDate reportDate;
-    private AdoptionReport adoptionReport;
+    private AdoptionReportDog adoptionReport;
 
     @BeforeEach
     public void setup() {
         id = 1;
-        Person person = new Person(444666555L, "Ivan", "Ivanov", "+79998887766", "email@gmail.com");
+        PersonDog person = new PersonDog(444666555L, "Ivan", "Ivanov", "+79998887766", "email@gmail.com");
         person.setId(1);
-        Pet pet = new Pet("Kompot", PetType.CAT, 2020);
+        Pet pet = new Pet("Kompot", PetType.DOG, 2020);
         pet.setId(1);
         LocalDate probationStartDate = LocalDate.now().minusDays(10);
         LocalDate probationEndDate = LocalDate.now().plusDays(20);
         AdoptionStatus adoptionStatus = AdoptionStatus.ON_PROBATION;
-        adoption = new Adoption(person, pet, probationStartDate, probationEndDate, adoptionStatus);
+        adoption = new AdoptionDog(person, pet, probationStartDate, probationEndDate, adoptionStatus);
         adoption.setId(id);
         reportDate = LocalDate.now();
         filePath = "/reports/" + reportDate + "/" + adoption.getId();
         mediaType = MediaType.TEXT_PLAIN_VALUE;
-        adoptionReport = new AdoptionReport(adoption, filePath, mediaType, reportDate);
+        adoptionReport = new AdoptionReportDog(adoption, filePath, mediaType, reportDate);
     }
 
     @Test
@@ -86,7 +102,7 @@ class AdoptionReportControllerTests {
         when(adoptionReportRepository.findAll()).thenReturn(new ArrayList<>(List.of(adoptionReport)));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/adoption_report")
+                        .get(url)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isNotEmpty());
@@ -96,7 +112,7 @@ class AdoptionReportControllerTests {
     public void getReportsByDateTest() throws Exception {
         when(adoptionReportRepository.findAllByReportDate(any(LocalDate.class))).thenReturn(new ArrayList<>(List.of(adoptionReport)));
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/adoption_report?reportDate=" + LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy")))
+                        .get(url + "?reportDate=" + LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy")))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isNotEmpty());
@@ -107,7 +123,7 @@ class AdoptionReportControllerTests {
         when(adoptionReportRepository.findAllByReportDateBetween(any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(new ArrayList<>(List.of(adoptionReport)));
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/adoption_report?fromDate=" + LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy"))
+                        .get(url + "?fromDate=" + LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy"))
                         + "&toDate=" + LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy")))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -116,16 +132,39 @@ class AdoptionReportControllerTests {
 
     @Test
     public void getReportsByAdoptionIdAndDateTest() throws Exception {
-        when(adoptionReportRepository.findAllByAdoptionAndReportDate(any(Adoption.class), any(LocalDate.class)))
+        when(adoptionReportRepository.findAllByAdoptionAndReportDate(any(AdoptionDog.class), any(LocalDate.class)))
                 .thenReturn(new ArrayList<>(List.of(adoptionReport)));
         when(adoptionRepository.findById(anyInt())).thenReturn(Optional.of(adoption));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/adoption_report?adoptionId=" + 1
+                        .get(url+"?adoptionId=" + 1
                                 + "&date=" + LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy")))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isNotEmpty());
+
+        when(adoptionReportRepository.findAllByAdoptionAndReportDate(any(AdoptionDog.class), any(LocalDate.class)))
+                .thenReturn(null);
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(url+"?adoptionId=" + 1
+                                + "&date=" + LocalDate.now().format(DateTimeFormatter.ofPattern("ddMMyyyy")))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void getByIdTest() throws Exception{
+        when(adoptionReportRepository.findById(anyInt())).thenReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders
+                .get(url + "/" + 1))
+                        .andExpect(status().isNotFound());
+
+        adoptionReport.setFilePath("testReports/1.txt");
+        when(adoptionReportRepository.findById(anyInt())).thenReturn(Optional.of(adoptionReport));
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(url + "/" + 1))
+                .andExpect(status().isOk());
+
     }
 
 	@Test
@@ -134,8 +173,12 @@ class AdoptionReportControllerTests {
         when(adoptionReportRepository.findById(anyInt())).thenReturn(Optional.of(adoptionReport));
 
 		mockMvc.perform(MockMvcRequestBuilders
-				.delete("/adoption_report/" + id + "?removeFile=false"))
+				.delete(url + "/" + id + "?removeFile=false"))
 				.andExpect(status().isOk());
 
+        when(adoptionReportRepository.findById(anyInt())).thenReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete(url + "/" + id + "?removeFile=false"))
+                .andExpect(status().isNotFound());
 	}
 }

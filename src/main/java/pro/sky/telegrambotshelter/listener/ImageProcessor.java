@@ -1,4 +1,4 @@
-package pro.sky.telegrambotshelter.lilstener;
+package pro.sky.telegrambotshelter.listener;
 
 import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.request.GetFile;
@@ -56,15 +56,6 @@ public class ImageProcessor extends Processor {
         }
     }
 
-//    private void savePhotoReport(PhotoSize[] photos, long chatId) throws IOException{
-//        PetType petType = userContextService.getPetType(chatId);
-//        if (petType == PetType.CAT) {
-//            savePhotoReportCat(photos, chatId);
-//        } else if (petType == PetType.DOG) {
-//            savePhotoReportDog(photos, chatId);
-//        }
-//    }
-
     /**
      * This method saves daily photo reports from adoptive people on probation.
      * If the user is not identified as active person with adopted animal on probation, then the photo is ignored,
@@ -98,7 +89,6 @@ public class ImageProcessor extends Processor {
         GetFile request = new GetFile(p.fileId());
         GetFileResponse getFileResponse = telegramBot.execute(request);
         com.pengrad.telegrambot.model.File file = getFileResponse.file();
-
         String fullPath = telegramBot.getFullFilePath(file);
         logger.info("Downloading file: " + fullPath);
 
@@ -111,13 +101,15 @@ public class ImageProcessor extends Processor {
                     + ". Пожалуйста обратитесь к волонтеру");
             return;
         }
-
         try (InputStream in = new URL(fullPath).openStream();
              OutputStream out = Files.newOutputStream(newFilePath, StandardOpenOption.CREATE_NEW);
              BufferedInputStream bIn = new BufferedInputStream(in, 1024);
              BufferedOutputStream bOut = new BufferedOutputStream(out, 1024)
         ) {
             bIn.transferTo(bOut);
+        } catch (Exception e){
+            e.printStackTrace();
+            logger.error("Failed file download. " + fullPath);
         }
         logger.info("File downloaded to: " + newFilePath);
         String contentType = Files.probeContentType(newFilePath);
@@ -132,90 +124,4 @@ public class ImageProcessor extends Processor {
         }
         sendMessage(chatId, "Фото добавлено в отчет за " + LocalDate.now());
     }
-//    private void savePhotoReportDog(PhotoSize[] photos, long chatId) throws IOException {
-//        AdoptionDog adoption = adoptionDogService.findByChatId(chatId);
-//        if (adoption == null) {
-//            sendMessage(chatId, "Не найдены сведения по вашему усыновлению. " +
-//                    "Пожалуйста обратитесь к волонтеру.");
-//            return;
-//        }
-//        PhotoSize p = Arrays.stream(photos).max(Comparator.comparingInt(PhotoSize::fileSize)).orElse(null);
-//        p.fileSize();
-//        GetFile request = new GetFile(p.fileId());
-//        GetFileResponse getFileResponse = telegramBot.execute(request);
-//        com.pengrad.telegrambot.model.File file = getFileResponse.file();
-//
-//        String fullPath = telegramBot.getFullFilePath(file);
-//        logger.info("Downloading file: " + fullPath);
-//
-//        int adoptionId = adoption.getId();
-//        String extension = getExtensionUtil(file.filePath());
-//        Path newFilePath = getFilePathUtil(adoptionId, extension, "DOG");
-//        if (newFilePath == null) {
-//            logger.error("Error saving file for adoption: " + adoption.getId());
-//            sendMessage(chatId, "Не удалось сохранить фото в отчет. Превышено количество фото за " + LocalDate.now()
-//                    + ". Пожалуйста обратитесь к волонтеру");
-//            return;
-//        }
-//
-//        try (InputStream in = new URL(fullPath).openStream();
-//             OutputStream out = Files.newOutputStream(newFilePath, StandardOpenOption.CREATE_NEW);
-//             BufferedInputStream bIn = new BufferedInputStream(in, 1024);
-//             BufferedOutputStream bOut = new BufferedOutputStream(out, 1024)
-//        ) {
-//            in.transferTo(out);
-//        }
-//        logger.info("File downloaded to: " + newFilePath);
-//        String contentType = Files.probeContentType(newFilePath);
-//        AdoptionReportDog adoptionReport = new AdoptionReportDog(adoption, newFilePath.toString(),
-//                contentType, LocalDate.now());
-//        adoptionReportDogService.save(adoptionReport);
-//        sendMessage(chatId, "Фото добавлено в отчет за " + LocalDate.now());
-//    }
-
-//    private void savePhotoReportCat(PhotoSize[] photos, long chatId) throws IOException {
-//        PetType petType = userContextService.getPetType(chatId);
-//        if (petType == null) {
-//            return;
-//        }
-//        AdoptionCat adoption = adoptionCatService.findByChatId(chatId);
-//        if (adoption == null) {
-//            sendMessage(chatId, "Не найдены сведения по вашему усыновлению. " +
-//                    "Пожалуйста обратитесь к волонтеру.");
-//            return;
-//        }
-//        PhotoSize p = Arrays.stream(photos).max(Comparator.comparingInt(PhotoSize::fileSize)).orElse(null);
-//        p.fileSize();
-//        GetFile request = new GetFile(p.fileId());
-//        GetFileResponse getFileResponse = telegramBot.execute(request);
-//        com.pengrad.telegrambot.model.File file = getFileResponse.file();
-//
-//        String fullPath = telegramBot.getFullFilePath(file);
-//        logger.info("Downloading file: " + fullPath);
-//
-//        int adoptionId = adoption.getId();
-//        String extension = getExtensionUtil(file.filePath());
-//        Path newFilePath = getFilePathUtil(adoptionId, extension, "CAT");
-//        if (newFilePath == null) {
-//            logger.error("Error saving file for adoption: " + adoption.getId());
-//            sendMessage(chatId, "Не удалось сохранить фото в отчет. Превышено количество фото за " + LocalDate.now()
-//                    + ". Пожалуйста обратитесь к волонтеру");
-//            return;
-//        }
-//
-//        try (InputStream in = new URL(fullPath).openStream();
-//             OutputStream out = Files.newOutputStream(newFilePath, StandardOpenOption.CREATE_NEW);
-//             BufferedInputStream bIn = new BufferedInputStream(in, 1024);
-//             BufferedOutputStream bOut = new BufferedOutputStream(out, 1024)
-//        ) {
-//            in.transferTo(out);
-//        }
-//        logger.info("File downloaded to: " + newFilePath);
-//        String contentType = Files.probeContentType(newFilePath);
-//        AdoptionReportCat adoptionReport = new AdoptionReportCat(adoption, newFilePath.toString(),
-//                contentType, LocalDate.now());
-//        adoptionReportCatService.save(adoptionReport);
-//        sendMessage(chatId, "Фото добавлено в отчет за " + LocalDate.now());
-//    }
-
 }

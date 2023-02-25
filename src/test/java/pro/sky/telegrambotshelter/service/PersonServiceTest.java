@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.telegrambotshelter.model.Person;
+import pro.sky.telegrambotshelter.model.PersonDog;
 import pro.sky.telegrambotshelter.repository.PersonDogRepository;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class PersonServiceTest {
     private PersonDogRepository personDogRepository;
 
     @InjectMocks
-    private PersonService personService;
+    private PersonDogService personService;
 
     private int id;
     private long chatId;
@@ -33,7 +34,7 @@ public class PersonServiceTest {
     private String lastName;
     private String phone;
     private String email;
-    private Person person;
+    private PersonDog person;
 
     @BeforeEach
     public void setup() {
@@ -43,14 +44,14 @@ public class PersonServiceTest {
         lastName = "Ivanov";
         phone = "+79998887766";
         email = "test@gmail.com";
-        person = new Person(chatId, firstName, lastName, phone, email);
+        person = new PersonDog(chatId, firstName, lastName, phone, email);
         person.setId(id);
     }
 
     @Test
     public void saveTest() {
         when(personDogRepository.findByChatId(person.getChatId())).thenReturn(Optional.empty());
-        when(personDogRepository.save(any(Person.class))).thenReturn(person);
+        when(personDogRepository.save(any(PersonDog.class))).thenReturn(person);
         assertEquals(person, personService.save(person));
 
         long existingChatId = 111222333;
@@ -83,7 +84,7 @@ public class PersonServiceTest {
     @Test
     public void editTest() {
         when(personDogRepository.findById(id)).thenReturn(Optional.of(person));
-        when(personDogRepository.save(any(Person.class))).thenReturn(person);
+        when(personDogRepository.save(any(PersonDog.class))).thenReturn(person);
         assertEquals(person, personService.edit(person));
 
         when(personDogRepository.findById(2)).thenReturn(Optional.empty());

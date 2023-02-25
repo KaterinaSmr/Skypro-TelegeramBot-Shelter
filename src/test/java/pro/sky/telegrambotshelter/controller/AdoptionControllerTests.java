@@ -36,46 +36,62 @@ class AdoptionControllerTests {
     @MockBean
     private PersonDogRepository personDogRepository;
     @MockBean
-    private AdoptionRepository adoptionRepository;
+    private PersonCatRepository personCatRepository;
     @MockBean
-    private AdoptionReportRepository adoptionReportRepository;
+    private AdoptionDogRepository adoptionRepository;
+    @MockBean
+    private AdoptionCatRepository adoptionCatRepository;
+    @MockBean
+    private AdoptionReportDogRepository adoptionReportRepository;
+    @MockBean
+    private AdoptionReportCatRepository adoptionReportCatRepository;
     @MockBean
     private UserContextRepository userContextRepository;
 
     @SpyBean
     private PetService petService;
     @SpyBean
-    private PersonService personService;
+    private PersonDogService personService;
     @SpyBean
-    private AdoptionService adoptionService;
+    private PersonCatService personCatService;
     @SpyBean
-    private AdoptionReportServiceTest adoptionReportService;
+    private AdoptionDogService adoptionService;
+    @SpyBean
+    private AdoptionCatService adoptionCatService;
+    @SpyBean
+    private AdoptionReportDogService adoptionReportService;
+    @SpyBean
+    private AdoptionReportCatService adoptionReportCatService;
     @SpyBean
     private UserContextService userContextService;
 
     @InjectMocks
-    private AdoptionController adoptionController;
+    private AdoptionDogController adoptionController;
+    @InjectMocks
+    private AdoptionCatController adoptionCatController;
+
+    private String url = "/adoption_dog";
 
     private int id;
-    private Person person;
+    private PersonDog person;
     private Pet pet;
     private LocalDate probationStartDate;
     private LocalDate probationEndDate;
     private AdoptionStatus adoptionStatus;
-    private Adoption adoption;
+    private AdoptionDog adoption;
 
     @BeforeEach
     public void setup() {
         id = 1;
-        person = new Person(444666555L, "Ivan", "Ivanov", "+79998887766", "email@gmail.com");
+        person = new PersonDog(444666555L, "Ivan", "Ivanov", "+79998887766", "email@gmail.com");
         person.setId(1);
-        pet = new Pet("Kompot", PetType.CAT, 2020);
+        pet = new Pet("Kompot", PetType.DOG, 2020);
         pet.setId(1);
         probationStartDate = LocalDate.now().minusDays(10);
         probationEndDate = LocalDate.now().plusDays(20);
         adoptionStatus = AdoptionStatus.ON_PROBATION;
 
-        adoption = new Adoption(person, pet, probationStartDate, probationEndDate, adoptionStatus);
+        adoption = new AdoptionDog(person, pet, probationStartDate, probationEndDate, adoptionStatus);
         adoption.setId(id);
     }
 
@@ -103,12 +119,12 @@ class AdoptionControllerTests {
         adoptionObject.put("probationEndDate", probationEndDate);
         adoptionObject.put("adoptionStatus", adoptionStatus);
 
-        when(adoptionRepository.save(any(Adoption.class))).thenReturn(adoption);
+        when(adoptionRepository.save(any(AdoptionDog.class))).thenReturn(adoption);
         when(personDogRepository.findById(anyInt())).thenReturn(Optional.empty());
         when(petRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/adoption")
+                        .post(url)
                         .content(adoptionObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -119,13 +135,24 @@ class AdoptionControllerTests {
                 .andExpect(jsonPath("$.probationStartDate").value(probationStartDate.toString()))
                 .andExpect(jsonPath("$.probationEndDate").value(probationEndDate.toString()))
                 .andExpect(jsonPath("$.adoptionStatus").value(adoptionStatus.toString()));
+
+        when(adoptionRepository.save(any(AdoptionDog.class))).thenReturn(adoption);
+        when(personDogRepository.findById(anyInt())).thenReturn(Optional.of(person));
+        when(adoptionRepository.findByPerson(any(PersonDog.class))).thenReturn(adoption);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post(url)
+                        .content(adoptionObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     public void getAdoptionByIdTest() throws Exception {
         when(adoptionRepository.findById(anyInt())).thenReturn(Optional.of(adoption));
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/adoption/" + id)
+                        .get(url + "/" + id)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
@@ -134,6 +161,12 @@ class AdoptionControllerTests {
                 .andExpect(jsonPath("$.probationStartDate").value(probationStartDate.toString()))
                 .andExpect(jsonPath("$.probationEndDate").value(probationEndDate.toString()))
                 .andExpect(jsonPath("$.adoptionStatus").value(adoptionStatus.toString()));
+
+        when(adoptionRepository.findById(anyInt())).thenReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(url + "/" + id)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -142,7 +175,7 @@ class AdoptionControllerTests {
         when(petRepository.findById(anyInt())).thenReturn(Optional.of(pet));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/adoption?petId=" + id)
+                        .get(url+ "?petId=" + id)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
@@ -151,15 +184,22 @@ class AdoptionControllerTests {
                 .andExpect(jsonPath("$.probationStartDate").value(probationStartDate.toString()))
                 .andExpect(jsonPath("$.probationEndDate").value(probationEndDate.toString()))
                 .andExpect(jsonPath("$.adoptionStatus").value(adoptionStatus.toString()));
+
+        when(adoptionRepository.findByPet(any(Pet.class))).thenReturn(null);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(url+ "?petId=" + id)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
     public void getAdoptionByPersonIdTest() throws Exception {
-        when(adoptionRepository.findByPerson(any(Person.class))).thenReturn(adoption);
+        when(adoptionRepository.findByPerson(any(PersonDog.class))).thenReturn(adoption);
         when(personDogRepository.findById(anyInt())).thenReturn(Optional.of(person));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/adoption?personId=" + id)
+                        .get(url + "?personId=" + id)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
@@ -168,6 +208,13 @@ class AdoptionControllerTests {
                 .andExpect(jsonPath("$.probationStartDate").value(probationStartDate.toString()))
                 .andExpect(jsonPath("$.probationEndDate").value(probationEndDate.toString()))
                 .andExpect(jsonPath("$.adoptionStatus").value(adoptionStatus.toString()));
+
+        when(adoptionRepository.findByPerson(any(PersonDog.class))).thenReturn(null);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get(url + "?personId=" + id)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -175,7 +222,7 @@ class AdoptionControllerTests {
         when(adoptionRepository.findAll()).thenReturn(new ArrayList<>(List.of(adoption)));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/adoption")
+                        .get(url)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isNotEmpty());
@@ -206,11 +253,11 @@ class AdoptionControllerTests {
         adoptionObject.put("probationEndDate", probationEndDate);
         adoptionObject.put("adoptionStatus", adoptionStatus);
 
-        when(adoptionRepository.save(any(Adoption.class))).thenReturn(adoption);
+        when(adoptionRepository.save(any(AdoptionDog.class))).thenReturn(adoption);
         when(adoptionRepository.findById(anyInt())).thenReturn(Optional.of(adoption));
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .put("/adoption")
+                        .put(url + "/edit")
                         .content(adoptionObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -221,6 +268,57 @@ class AdoptionControllerTests {
                 .andExpect(jsonPath("$.probationStartDate").value(probationStartDate.toString()))
                 .andExpect(jsonPath("$.probationEndDate").value(probationEndDate.toString()))
                 .andExpect(jsonPath("$.adoptionStatus").value(adoptionStatus.toString()));
+
+        when(adoptionRepository.findById(anyInt())).thenReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put(url + "/edit")
+                        .content(adoptionObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void updateProbationStatus() throws Exception{
+        when(adoptionRepository.findById(any(Integer.class))).thenReturn(Optional.of(adoption));
+        when(adoptionRepository.save(any(AdoptionDog.class))).thenReturn(adoption);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .put(url+"?adoptionId=1&adoptionStatus=ON_PROBATION")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.person").isNotEmpty())
+                .andExpect(jsonPath("$.pet").isNotEmpty())
+                .andExpect(jsonPath("$.probationStartDate").value(probationStartDate.toString()))
+                .andExpect(jsonPath("$.probationEndDate").value(probationEndDate.toString()))
+                .andExpect(jsonPath("$.adoptionStatus").value(adoptionStatus.toString()));
+
+        when(adoptionRepository.findById(any(Integer.class))).thenReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put(url+"?adoptionId=1&adoptionStatus=ON_PROBATION")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void updateProbationEndDate() throws Exception{
+        when(adoptionRepository.findById(any(Integer.class))).thenReturn(Optional.of(adoption));
+        when(adoptionRepository.save(any(AdoptionDog.class))).thenReturn(adoption);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put(url+"?adoptionId=1&probationEndDate=28022023")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        when(adoptionRepository.findById(any(Integer.class))).thenReturn(Optional.empty());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put(url+"?adoptionId=1&probationEndDate=28022023")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -228,7 +326,7 @@ class AdoptionControllerTests {
         doNothing().when(adoptionRepository).deleteById(anyInt());
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .delete("/adoption/" + id))
+                        .delete(url + "/" + id))
                 .andExpect(status().isOk());
 
         verify(adoptionRepository, only()).deleteById(anyInt());

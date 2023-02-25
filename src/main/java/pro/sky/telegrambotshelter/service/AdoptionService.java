@@ -1,6 +1,5 @@
 package pro.sky.telegrambotshelter.service;
 
-import pro.sky.telegrambotshelter.PersonNotFoundException;
 import pro.sky.telegrambotshelter.model.Adoption;
 import pro.sky.telegrambotshelter.model.AdoptionStatus;
 import pro.sky.telegrambotshelter.model.Person;
@@ -62,7 +61,7 @@ public abstract class AdoptionService <S extends Adoption<T>, T extends Person> 
 
     public S findByChatId(long chatId){
         T person = personService.findPersonByChatId(chatId)
-                .orElseThrow(PersonNotFoundException::new);
+                .orElse(null);
         return adoptionRepository.findByPerson(person);
     }
 

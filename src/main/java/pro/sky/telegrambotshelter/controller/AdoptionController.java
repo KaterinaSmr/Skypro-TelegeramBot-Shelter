@@ -161,7 +161,7 @@ public class AdoptionController <S extends Adoption<T>, T extends Person>  {
                                                     @RequestParam (required = false) AdoptionStatus adoptionStatus){
         S adoption = adoptionService.setNewStatus(adoptionId, adoptionStatus);
         if (adoption == null){
-            ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok().body(adoption);
     }
@@ -181,7 +181,7 @@ public class AdoptionController <S extends Adoption<T>, T extends Person>  {
             @RequestParam (required = false) String probationEndDate){
         S adoption = adoptionService.setNewProbationEndDate(adoptionId, probationEndDate);
         if (adoption == null){
-            ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok().body(adoption);
     }

@@ -8,10 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import pro.sky.telegrambotshelter.model.*;
-import pro.sky.telegrambotshelter.repository.AdoptionReportRepository;
-import pro.sky.telegrambotshelter.repository.AdoptionRepository;
-import pro.sky.telegrambotshelter.repository.PersonDogRepository;
-import pro.sky.telegrambotshelter.repository.PetRepository;
+import pro.sky.telegrambotshelter.repository.*;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -30,46 +27,46 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class AdoptionReportServiceTest {
     @Mock
-    private AdoptionRepository adoptionRepository;
+    private AdoptionDogRepository adoptionRepository;
     @Mock
     private PersonDogRepository personDogRepository;
     @Mock
     private PetRepository petRepository;
     @Mock
-    private AdoptionReportRepository adoptionReportRepository;
+    private AdoptionReportDogRepository adoptionReportRepository;
 
     @InjectMocks
-    private PersonService personService;
+    private PersonDogService personService;
     @InjectMocks
     private PetService petService;
-    private AdoptionService adoptionService;
-    private AdoptionReportService adoptionReportService;
+    private AdoptionDogService adoptionService;
+    private AdoptionReportDogService adoptionReportService;
 
     private int id;
-    private Adoption adoption;
+    private AdoptionDog adoption;
     private String filePath;
     private String mediaType;
     private LocalDate reportDate;
-    private AdoptionReport adoptionReport;
+    private AdoptionReportDog adoptionReport;
     private DateTimeFormatter formatter;
 
     @BeforeEach
     public void setup() {
         id = 1;
-        Person person = new Person(444555666, "Ivan", "Ivanov", "+79998887766", "test@gmail.com");
+        PersonDog person = new PersonDog(444555666, "Ivan", "Ivanov", "+79998887766", "test@gmail.com");
         person.setId(1);
-        Pet pet = new Pet("Коржик", PetType.CAT, 2020);
+        Pet pet = new Pet("Коржик", PetType.DOG, 2020);
         pet.setId(1);
-        adoption = new Adoption(person, pet, LocalDate.now().minusDays(10), LocalDate.now().plusDays(20),
+        adoption = new AdoptionDog(person, pet, LocalDate.now().minusDays(10), LocalDate.now().plusDays(20),
                 AdoptionStatus.ON_PROBATION);
         adoption.setId(1);
         filePath = Path.of("reports", LocalDate.now().toString(), String.valueOf(adoption.getId()), "1.txt").toString();
         mediaType = MediaType.TEXT_PLAIN_VALUE;
         reportDate = LocalDate.now();
-        adoptionReport = new AdoptionReport(adoption, filePath, mediaType, reportDate);
+        adoptionReport = new AdoptionReportDog(adoption, filePath, mediaType, reportDate);
 
-        adoptionService = new AdoptionService(adoptionRepository, personService, petService);
-        adoptionReportService = new AdoptionReportService(adoptionReportRepository, adoptionService);
+        adoptionService = new AdoptionDogService(adoptionRepository, personService, petService);
+        adoptionReportService = new AdoptionReportDogService(adoptionReportRepository, adoptionService);
         formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
     }
 
@@ -89,7 +86,7 @@ public class AdoptionReportServiceTest {
     @Test
     public void findAllByAdoptionAndReportDateTest() {
         when(adoptionRepository.findById(anyInt())).thenReturn(Optional.of(adoption));
-        when(adoptionReportRepository.findAllByAdoptionAndReportDate(any(Adoption.class), any(LocalDate.class)))
+        when(adoptionReportRepository.findAllByAdoptionAndReportDate(any(AdoptionDog.class), any(LocalDate.class)))
                 .thenReturn(new ArrayList<>(List.of(adoptionReport)));
         assertEquals(new ArrayList<>(List.of(adoptionReport)), adoptionReportService.findAllByAdoptionAndReportDate(
                 adoption, LocalDate.now()
@@ -105,7 +102,7 @@ public class AdoptionReportServiceTest {
 
     @Test
     public void saveTest() {
-        when(adoptionReportRepository.save(any(AdoptionReport.class))).thenReturn(adoptionReport);
+        when(adoptionReportRepository.save(any(AdoptionReportDog.class))).thenReturn(adoptionReport);
         assertEquals(adoptionReport, adoptionReportService.save(adoptionReport));
     }
 

@@ -144,7 +144,7 @@ public class AdoptionReportController <V extends AdoptionReport<S, T>, S extends
             response.setContentType(adoptionReport.getMediaType());
             response.setCharacterEncoding("utf-8");
             response.setContentLength((int) Files.size(filePath));
-            in.transferTo(out);
+            bIn.transferTo(bOut);
         }
         return ResponseEntity.ok().build();
     }

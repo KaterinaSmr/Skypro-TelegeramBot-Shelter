@@ -6,9 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pro.sky.telegrambotshelter.PersonNotFoundException;
 import pro.sky.telegrambotshelter.model.*;
-import pro.sky.telegrambotshelter.repository.AdoptionRepository;
+import pro.sky.telegrambotshelter.repository.AdoptionDogRepository;
 import pro.sky.telegrambotshelter.repository.PersonDogRepository;
 import pro.sky.telegrambotshelter.repository.PetRepository;
 
@@ -25,40 +24,40 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class AdoptionServiceTest {
     @Mock
-    private AdoptionRepository adoptionRepository;
+    private AdoptionDogRepository adoptionRepository;
     @Mock
     private PersonDogRepository personDogRepository;
     @Mock
     private PetRepository petRepository;
 
     @InjectMocks
-    private PersonService personService;
+    private PersonDogService personService;
     @InjectMocks
     private PetService petService;
 
     private int id;
-    private Person person;
+    private PersonDog person;
     private Pet pet;
     private LocalDate probationStartDate;
     private LocalDate probationEndDate;
     private AdoptionStatus adoptionStatus;
-    private Adoption adoption;
-    private AdoptionService adoptionService;
+    private AdoptionDog adoption;
+    private AdoptionDogService adoptionService;
 
     @BeforeEach
     public void setup() {
         id = 1;
-        person = new Person(444555666, "Ivan", "Ivanov", "+79998887766", "test@gmail.com");
+        person = new PersonDog(444555666, "Ivan", "Ivanov", "+79998887766", "test@gmail.com");
         person.setId(id);
         pet = new Pet("Коржик", PetType.CAT, 2020);
         pet.setId(id);
         probationStartDate = LocalDate.now().minusDays(10);
         probationEndDate = LocalDate.now().plusDays(20);
         adoptionStatus = AdoptionStatus.ON_PROBATION;
-        adoption = new Adoption(person, pet, probationStartDate, probationEndDate, adoptionStatus);
+        adoption = new AdoptionDog(person, pet, probationStartDate, probationEndDate, adoptionStatus);
         adoption.setId(id);
 
-        adoptionService = new AdoptionService(adoptionRepository, personService, petService);
+        adoptionService = new AdoptionDogService(adoptionRepository, personService, petService);
     }
 
     @Test
@@ -73,11 +72,11 @@ public class AdoptionServiceTest {
     @Test
     public void findByChatIdTest() {
         when(personDogRepository.findByChatId(person.getChatId())).thenReturn(Optional.of(person));
-        when(adoptionRepository.findByPerson(any(Person.class))).thenReturn(adoption);
+        when(adoptionRepository.findByPerson(any(PersonDog.class))).thenReturn(adoption);
         assertEquals(adoption, adoptionService.findByChatId(person.getChatId()));
 
         when(personDogRepository.findByChatId(person.getChatId())).thenReturn(Optional.empty());
-        assertThrows(PersonNotFoundException.class, () -> adoptionService.findByChatId(person.getChatId()));
+        assertNull(adoptionService.findByChatId(person.getChatId()));
     }
 
     @Test
@@ -93,7 +92,7 @@ public class AdoptionServiceTest {
     @Test
     public void findByPersonIdTest() {
         when(personDogRepository.findById(anyInt())).thenReturn(Optional.of(person));
-        when(adoptionRepository.findByPerson(any(Person.class))).thenReturn(adoption);
+        when(adoptionRepository.findByPerson(any(PersonDog.class))).thenReturn(adoption);
         assertEquals(adoption, adoptionService.findByPersonId(person.getId()));
 
         when(personDogRepository.findById(person.getId())).thenReturn(Optional.empty());
@@ -104,12 +103,12 @@ public class AdoptionServiceTest {
     public void saveTest() {
         when(personDogRepository.findById(person.getId())).thenReturn(Optional.empty());
         when(petRepository.findById(pet.getId())).thenReturn(Optional.empty());
-        when(adoptionRepository.save(any(Adoption.class))).thenReturn(adoption);
+        when(adoptionRepository.save(any(AdoptionDog.class))).thenReturn(adoption);
         assertEquals(adoption, adoptionService.save(adoption));
 
         person.setId(2);
         when(personDogRepository.findById(person.getId())).thenReturn(Optional.of(person));
-        when(adoptionRepository.findByPerson(any(Person.class))).thenReturn(adoption);
+        when(adoptionRepository.findByPerson(any(PersonDog.class))).thenReturn(adoption);
         assertNull(adoptionService.save(adoption));
 
         when(personDogRepository.findById(anyInt())).thenReturn(Optional.empty());
@@ -121,7 +120,7 @@ public class AdoptionServiceTest {
     @Test
     public void editTest() {
         when(adoptionRepository.findById(id)).thenReturn(Optional.of(adoption));
-        when(adoptionRepository.save(any(Adoption.class))).thenReturn(adoption);
+        when(adoptionRepository.save(any(AdoptionDog.class))).thenReturn(adoption);
         assertEquals(adoption, adoptionService.edit(adoption));
 
         when(adoptionRepository.findById(2)).thenReturn(Optional.empty());
@@ -138,7 +137,7 @@ public class AdoptionServiceTest {
 
     @Test
     public void setNewStatusTest() {
-        when(adoptionRepository.save(any(Adoption.class))).thenReturn(adoption);
+        when(adoptionRepository.save(any(AdoptionDog.class))).thenReturn(adoption);
         when(adoptionRepository.findById(id)).thenReturn(Optional.of(adoption));
         assertEquals(adoption, adoptionService.setNewStatus(adoption, AdoptionStatus.ADOPTION_CONFIRMED));
         assertEquals(adoption, adoptionService.setNewStatus(adoption.getId(), AdoptionStatus.ON_PROBATION));
@@ -150,14 +149,14 @@ public class AdoptionServiceTest {
 
     @Test
     public void setNewProbationEndDateTest() {
-        when(adoptionRepository.save(any(Adoption.class))).thenReturn(adoption);
+        when(adoptionRepository.save(any(AdoptionDog.class))).thenReturn(adoption);
         when(adoptionRepository.findById(id)).thenReturn(Optional.of(adoption));
         assertEquals(adoption, adoptionService.setNewProbationEndDate(adoption, LocalDate.now().plusDays(30)));
-        assertEquals(adoption, adoptionService.setNewProbationEndDate(adoption.getId(), LocalDate.now().plusDays(20)));
+        assertEquals(adoption, adoptionService.setNewProbationEndDate(adoption.getId(), "01042023"));
 
         adoption.setId(2);
         when(adoptionRepository.findById(adoption.getId())).thenReturn(Optional.empty());
-        assertNull(adoptionService.setNewProbationEndDate(adoption.getId(), LocalDate.now().plusDays(30)));
+        assertNull(adoptionService.setNewProbationEndDate(adoption.getId(), "01042023"));
     }
 
     @Test

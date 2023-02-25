@@ -37,20 +37,32 @@ class PetControllerTests {
     @MockBean
     private PersonDogRepository personDogRepository;
     @MockBean
-    private AdoptionRepository adoptionRepository;
+    private PersonCatRepository personCatRepository;
     @MockBean
-    private AdoptionReportRepository adoptionReportRepository;
+    private AdoptionDogRepository adoptionRepository;
+    @MockBean
+    private AdoptionCatRepository adoptionCatRepository;
+    @MockBean
+    private AdoptionReportDogRepository adoptionReportRepository;
+    @MockBean
+    private AdoptionReportCatRepository adoptionReportCatRepository;
     @MockBean
     private UserContextRepository userContextRepository;
 
     @SpyBean
     private PetService petService;
     @SpyBean
-    private PersonService personService;
+    private PersonDogService personService;
     @SpyBean
-    private AdoptionService adoptionService;
+    private PersonCatService personCatService;
     @SpyBean
-    private AdoptionReportServiceTest adoptionReportService;
+    private AdoptionDogService adoptionService;
+    @SpyBean
+    private AdoptionCatService adoptionCatService;
+    @SpyBean
+    private AdoptionReportDogService adoptionReportService;
+    @SpyBean
+    private AdoptionReportCatService adoptionReportCatService;
     @SpyBean
     private UserContextService userContextService;
 
@@ -105,6 +117,13 @@ class PetControllerTests {
                 .andExpect(jsonPath("$.name").value(name))
                 .andExpect(jsonPath("$.petType").value(petType))
                 .andExpect(jsonPath("$.yearOfBirth").value(yearOfBirth));
+
+        when(petRepository.findById(any(Integer.class))).thenReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/pet/" + id)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
     }
 
     @Test
@@ -138,6 +157,14 @@ class PetControllerTests {
                 .andExpect(jsonPath("$.name").value(name))
                 .andExpect(jsonPath("$.petType").value(petType))
                 .andExpect(jsonPath("$.yearOfBirth").value(yearOfBirth));
+
+        when(petRepository.findById(any(Integer.class))).thenReturn(Optional.empty());
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put("/pet")
+                        .content(petObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test

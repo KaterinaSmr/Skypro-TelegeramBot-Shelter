@@ -1,4 +1,4 @@
-package pro.sky.telegrambotshelter.lilstener;
+package pro.sky.telegrambotshelter.listener;
 
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
@@ -231,6 +231,9 @@ public class TextMessageProcessor extends Processor {
              BufferedWriter bOut = new BufferedWriter(out, 1024)
         ) {
             bOut.write(message);
+        } catch (Exception e){
+            e.printStackTrace();
+            logger.error("Failed to save text report. AdoptionId=" + adoption.getId() + " text: " + message);
         }
         logger.info("Saved report file " + newFilePath);
         String contentType = Files.probeContentType(newFilePath);
