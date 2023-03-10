@@ -1,0 +1,25 @@
+{
+  "message": {
+    "from": {
+      "id": 123
+    },
+    "chat": {
+      "id": 123
+    },
+    "message_id": 111,
+    "photo": [
+      {
+        "file_id" : "qwerty",
+        "width" : 84,
+        "height" : 90,
+        "file_size" : 1585
+      },
+      {
+        "file_id" : "qwerty123",
+        "width" : 299,
+        "height" : 320,
+        "file_size" : 18168
+      }
+    ]
+  }
+}

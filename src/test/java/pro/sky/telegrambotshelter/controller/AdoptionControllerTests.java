@@ -11,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import pro.sky.telegrambotshelter.TestImageSender;
 import pro.sky.telegrambotshelter.model.*;
 import pro.sky.telegrambotshelter.repository.*;
 import pro.sky.telegrambotshelter.service.*;
@@ -65,12 +66,13 @@ class AdoptionControllerTests {
     @SpyBean
     private UserContextService userContextService;
 
+
     @InjectMocks
     private AdoptionDogController adoptionController;
     @InjectMocks
     private AdoptionCatController adoptionCatController;
 
-    private String url = "/adoption_dog";
+    private final String url = "/adoption_dog";
 
     private int id;
     private PersonDog person;

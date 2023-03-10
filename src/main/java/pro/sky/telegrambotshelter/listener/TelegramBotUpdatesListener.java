@@ -28,7 +28,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private final TelegramBot telegramBot;
     private final ScheduledJobsExecutor scheduledJobsExecutor;
 
-    public TelegramBotUpdatesListener(UserContextService userContextService, TextMessageProcessor textMessageProcessor, ImageProcessor imageProcessor, CallbackQueryProcessor callbackQueryProcessor, TelegramBot telegramBot, ScheduledJobsExecutor scheduledJobsExecutor) {
+    public TelegramBotUpdatesListener(UserContextService userContextService, TextMessageProcessor textMessageProcessor,
+                                      ImageProcessor imageProcessor, CallbackQueryProcessor callbackQueryProcessor,
+                                      TelegramBot telegramBot, ScheduledJobsExecutor scheduledJobsExecutor) {
         this.userContextService = userContextService;
         this.textMessageProcessor = textMessageProcessor;
         this.imageProcessor = imageProcessor;

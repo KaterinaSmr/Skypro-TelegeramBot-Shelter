@@ -11,64 +11,48 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Value;
 import pro.sky.telegrambotshelter.model.*;
-import pro.sky.telegrambotshelter.repository.*;
 import pro.sky.telegrambotshelter.service.*;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.time.LocalDate;
-import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ImageProcessorTest {
-    @Mock
-    private PetRepository petRepository;
-    @Mock
-    private PersonDogRepository personDogRepository;
-    @Mock
-    private AdoptionDogRepository adoptionRepository;
-    @Mock
-    private AdoptionReportDogRepository adoptionReportRepository;
-    @Mock
-    private PersonCatRepository personCatRepository;
-    @Mock
-    private AdoptionCatRepository adoptionCatRepository;
-    @Mock
-    private AdoptionReportCatRepository adoptionReportCatRepository;
-    @Mock
-    private UserContextRepository userContextRepository;
+
     @Mock
     private TelegramBot telegramBot;
-    @Mock
+    @Spy
     private PhotoSize photoSize;
-    @Mock
-    private com.pengrad.telegrambot.model.File file;
-    @Mock
+    @Spy
+    private File file;
+    @Spy
     private GetFileResponse getFileResponse;
 
-    @InjectMocks
+    @Mock
     private PersonDogService personDogService;
-    @InjectMocks
+    @Mock
     private PersonCatService personCatService;
-    @InjectMocks
+    @Mock
     private PetService petService;
-    @InjectMocks
+    @Mock
     private AdoptionDogService adoptionDogService;
-    @InjectMocks
+    @Mock
     private AdoptionCatService adoptionCatService;
-    @InjectMocks
+    @Mock
     private AdoptionReportDogService adoptionReportDogService;
-    @InjectMocks
+    @Mock
     private AdoptionReportCatService adoptionReportCatService;
-    @InjectMocks
+    @Mock
     private UserContextService userContextService;
+
     @InjectMocks
     private ImageProcessor imageProcessor;
 
@@ -105,50 +89,36 @@ public class ImageProcessorTest {
 
         userContext = new UserContext(chatId, "/report", PetType.DOG);
 
-        adoptionDogService = new AdoptionDogService(adoptionRepository, personDogService, petService);
-        adoptionCatService = new AdoptionCatService(adoptionCatRepository, personCatService, petService);
         imageProcessor = new ImageProcessor(personDogService, personCatService, adoptionDogService,
                 adoptionCatService, adoptionReportDogService, adoptionReportCatService, petService, userContextService);
         imageProcessor.setTelegramBot(telegramBot);
-        when(userContextRepository.findByChatId(anyLong())).thenReturn(userContext);
+        when(userContextService.getLastCommand(anyLong())).thenReturn("/report");
+    }
+
+    @Test
+    public void processTestNotFound() throws Exception{
+        when(adoptionDogService.findByChatId(anyLong())).thenReturn(null);
+        when(adoptionCatService.findByChatId(anyLong())).thenReturn(null);
+
+        when(telegramBot.execute(any())).thenReturn(null);
+        imageProcessor.process(userContext.getChatId(), new PhotoSize[]{new PhotoSize()});
+        verify(telegramBot).execute(any(SendMessage.class));
     }
 
     @Test
     public void processTest() throws Exception{
+        when(adoptionDogService.findByChatId(anyLong())).thenReturn(adoption);
+        when(adoptionReportDogService.save(any())).thenReturn(null);
         when(telegramBot.execute(any())).thenReturn(null);
-        when(personDogRepository.findByChatId(anyLong())).thenReturn(Optional.of(person));
-        when(adoptionRepository.findByPerson(any(PersonDog.class))).thenReturn(adoption);
-        Constructor c = GetFileResponse.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        GetFileResponse getFileResponse1 = (GetFileResponse) c.newInstance();
-        when(telegramBot.execute(any(GetFile.class))).thenReturn(getFileResponse1);
 
-        Field field = getFileResponse1.getClass().getDeclaredField("result");
-        field.setAccessible(true);
-        File file = new File();
-        field.set(getFileResponse1, file);
-        when(telegramBot.getFullFilePath(any())).thenReturn("");
-
-        Field filePathField = file.getClass().getDeclaredField("file_path");
-        filePathField.setAccessible(true);
-        filePathField.set(file, "1.jpg");
-
-        when(adoptionReportRepository.save(any(AdoptionReportDog.class))).thenReturn(null);
+        //mock telegram responses
+        when(telegramBot.execute(any(GetFile.class))).thenReturn(getFileResponse);
+        when(getFileResponse.file()).thenReturn(file);
+        when(telegramBot.getFullFilePath(any())).thenReturn("http://localhost:8080/testimage");
+        when(file.filePath()).thenReturn("test.jpg");
 
         imageProcessor.process(userContext.getChatId(), new PhotoSize[]{new PhotoSize()});
-        verify(telegramBot, atLeastOnce()).execute(any(SendMessage.class));
-
-        when(personDogRepository.findByChatId(anyLong())).thenReturn(Optional.empty());
-        when(personCatRepository.findByChatId(anyLong())).thenReturn(Optional.of(personCat));
-        when(adoptionCatRepository.findByPerson(any(PersonCat.class))).thenReturn(adoptionCat);
-        when(adoptionReportCatRepository.save(any(AdoptionReportCat.class))).thenReturn(null);
-
-        imageProcessor.process(userContext.getChatId(), new PhotoSize[]{new PhotoSize()});
-        verify(telegramBot, atLeastOnce()).execute(any(SendMessage.class));
-
-        when(personCatRepository.findByChatId(anyLong())).thenReturn(Optional.empty());
-        imageProcessor.process(userContext.getChatId(), new PhotoSize[]{new PhotoSize()});
-        verify(telegramBot, atLeastOnce()).execute(any(SendMessage.class));
-
+        verify(telegramBot).execute(any(SendMessage.class));
     }
+
 }
