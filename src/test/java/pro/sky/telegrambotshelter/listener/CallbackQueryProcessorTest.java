@@ -13,6 +13,12 @@ import pro.sky.telegrambotshelter.model.PetType;
 import pro.sky.telegrambotshelter.model.UserContext;
 import pro.sky.telegrambotshelter.repository.*;
 import pro.sky.telegrambotshelter.service.*;
+import pro.sky.telegrambotshelter.service.adoption.AdoptionCatService;
+import pro.sky.telegrambotshelter.service.adoption.AdoptionDogService;
+import pro.sky.telegrambotshelter.service.adoptionReport.AdoptionReportCatService;
+import pro.sky.telegrambotshelter.service.adoptionReport.AdoptionReportDogService;
+import pro.sky.telegrambotshelter.service.person.PersonCatService;
+import pro.sky.telegrambotshelter.service.person.PersonDogService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;

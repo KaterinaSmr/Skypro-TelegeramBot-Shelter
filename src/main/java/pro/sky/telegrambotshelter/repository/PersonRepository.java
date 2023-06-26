@@ -2,7 +2,7 @@ package pro.sky.telegrambotshelter.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
-import pro.sky.telegrambotshelter.model.Person;
+import pro.sky.telegrambotshelter.model.person.Person;
 
 import java.util.Optional;
 

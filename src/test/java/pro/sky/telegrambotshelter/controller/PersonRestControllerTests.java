@@ -11,9 +11,17 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import pro.sky.telegrambotshelter.model.PersonDog;
+import pro.sky.telegrambotshelter.controller.person.PersonCatController;
+import pro.sky.telegrambotshelter.controller.person.PersonDogController;
+import pro.sky.telegrambotshelter.model.person.PersonDog;
 import pro.sky.telegrambotshelter.repository.*;
 import pro.sky.telegrambotshelter.service.*;
+import pro.sky.telegrambotshelter.service.adoption.AdoptionCatService;
+import pro.sky.telegrambotshelter.service.adoption.AdoptionDogService;
+import pro.sky.telegrambotshelter.service.adoptionReport.AdoptionReportCatService;
+import pro.sky.telegrambotshelter.service.adoptionReport.AdoptionReportDogService;
+import pro.sky.telegrambotshelter.service.person.PersonCatService;
+import pro.sky.telegrambotshelter.service.person.PersonDogService;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -7,9 +7,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.telegrambotshelter.model.*;
+import pro.sky.telegrambotshelter.model.adoption.AdoptionDog;
+import pro.sky.telegrambotshelter.model.adoption.AdoptionStatus;
+import pro.sky.telegrambotshelter.model.person.PersonDog;
 import pro.sky.telegrambotshelter.repository.AdoptionDogRepository;
 import pro.sky.telegrambotshelter.repository.PersonDogRepository;
 import pro.sky.telegrambotshelter.repository.PetRepository;
+import pro.sky.telegrambotshelter.service.adoption.AdoptionDogService;
+import pro.sky.telegrambotshelter.service.person.PersonDogService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

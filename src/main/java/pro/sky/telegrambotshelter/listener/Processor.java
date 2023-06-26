@@ -4,9 +4,15 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import pro.sky.telegrambotshelter.model.Adoption;
+import pro.sky.telegrambotshelter.model.adoption.Adoption;
 import pro.sky.telegrambotshelter.model.PetType;
 import pro.sky.telegrambotshelter.service.*;
+import pro.sky.telegrambotshelter.service.adoption.AdoptionCatService;
+import pro.sky.telegrambotshelter.service.adoption.AdoptionDogService;
+import pro.sky.telegrambotshelter.service.adoptionReport.AdoptionReportCatService;
+import pro.sky.telegrambotshelter.service.adoptionReport.AdoptionReportDogService;
+import pro.sky.telegrambotshelter.service.person.PersonCatService;
+import pro.sky.telegrambotshelter.service.person.PersonDogService;
 
 import java.io.File;
 import java.io.IOException;

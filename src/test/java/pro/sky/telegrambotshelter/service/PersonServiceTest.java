@@ -6,9 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pro.sky.telegrambotshelter.model.Person;
-import pro.sky.telegrambotshelter.model.PersonDog;
+import pro.sky.telegrambotshelter.model.person.PersonDog;
 import pro.sky.telegrambotshelter.repository.PersonDogRepository;
+import pro.sky.telegrambotshelter.service.person.PersonDogService;
 
 import java.util.ArrayList;
 import java.util.List;

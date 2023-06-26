@@ -14,7 +14,18 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pro.sky.telegrambotshelter.model.*;
+import pro.sky.telegrambotshelter.model.adoption.AdoptionCat;
+import pro.sky.telegrambotshelter.model.adoption.AdoptionDog;
+import pro.sky.telegrambotshelter.model.adoption.AdoptionStatus;
+import pro.sky.telegrambotshelter.model.person.PersonCat;
+import pro.sky.telegrambotshelter.model.person.PersonDog;
 import pro.sky.telegrambotshelter.service.*;
+import pro.sky.telegrambotshelter.service.adoption.AdoptionCatService;
+import pro.sky.telegrambotshelter.service.adoption.AdoptionDogService;
+import pro.sky.telegrambotshelter.service.adoptionReport.AdoptionReportCatService;
+import pro.sky.telegrambotshelter.service.adoptionReport.AdoptionReportDogService;
+import pro.sky.telegrambotshelter.service.person.PersonCatService;
+import pro.sky.telegrambotshelter.service.person.PersonDogService;
 
 import java.time.LocalDate;
 

@@ -8,7 +8,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import pro.sky.telegrambotshelter.model.*;
+import pro.sky.telegrambotshelter.model.adoption.AdoptionDog;
+import pro.sky.telegrambotshelter.model.adoption.AdoptionStatus;
+import pro.sky.telegrambotshelter.model.adoptionReport.AdoptionReportDog;
+import pro.sky.telegrambotshelter.model.person.PersonDog;
 import pro.sky.telegrambotshelter.repository.*;
+import pro.sky.telegrambotshelter.service.adoption.AdoptionDogService;
+import pro.sky.telegrambotshelter.service.adoptionReport.AdoptionReportDogService;
+import pro.sky.telegrambotshelter.service.person.PersonDogService;
 
 import java.nio.file.Path;
 import java.time.LocalDate;

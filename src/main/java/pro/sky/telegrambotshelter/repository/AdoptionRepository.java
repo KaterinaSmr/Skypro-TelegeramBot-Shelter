@@ -2,12 +2,11 @@ package pro.sky.telegrambotshelter.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
-import pro.sky.telegrambotshelter.model.Adoption;
-import pro.sky.telegrambotshelter.model.AdoptionStatus;
-import pro.sky.telegrambotshelter.model.Person;
+import pro.sky.telegrambotshelter.model.adoption.Adoption;
+import pro.sky.telegrambotshelter.model.adoption.AdoptionStatus;
+import pro.sky.telegrambotshelter.model.person.Person;
 import pro.sky.telegrambotshelter.model.Pet;
 
-import java.util.Collection;
 import java.util.List;
 
 @NoRepositoryBean
